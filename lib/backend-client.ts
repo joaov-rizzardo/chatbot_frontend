@@ -9,6 +9,7 @@ export async function backendFetch(path: string, options?: RequestInit): Promise
     const response = await fetch(`${API_URL}/${path}`, {
         ...options,
         headers: {
+            'Content-Type': 'application/json',
             ...options?.headers,
             Authorization: `Bearer ${accessToken}`,
         }
@@ -26,7 +27,7 @@ export async function backendFetch(path: string, options?: RequestInit): Promise
 
     const newAccessToken = (await cookies()).get('access_token')?.value
 
-   const retryResponse = await fetch(`${API_URL}${path}`, {
+    const retryResponse = await fetch(`${API_URL}${path}`, {
         ...options,
         headers: {
             ...options?.headers,
@@ -35,7 +36,7 @@ export async function backendFetch(path: string, options?: RequestInit): Promise
         cache: 'no-store',
     })
 
-    if(retryResponse.status === 401){
+    if (retryResponse.status === 401) {
         throw new Error("Unauthorized")
     }
 

@@ -9,6 +9,8 @@ import { LoginFormData, loginSchema } from "../schemas/login-schema"
 import { useForm } from "react-hook-form"
 import { Spinner } from "@/shared/components/ui/spinner"
 import { Field, FieldDescription } from "@/shared/components/ui/field"
+import { BackendApiResponse } from "@/shared/types/backend-api-response"
+import { LoginApiResponse } from "../types/login-api-response"
 
 export function LoginForm() {
 
@@ -22,11 +24,31 @@ export function LoginForm() {
     })
 
     const onSubmit = async (data: LoginFormData) => {
-        await new Promise(resolve => setTimeout(resolve, 5000))
-        setError("root", {
-            message: "Não foi possível se comunicar com o servidor, tente novamente mais tarde"
+        const response = await fetch("/api/login", {
+            method: "POST",
+            body: JSON.stringify({
+                email: data.email,
+                password: data.password
+            })
         })
-        console.log(data)
+
+        const body = await response.json() as BackendApiResponse<LoginApiResponse>
+
+        if (!body.success) {
+            if (body.statusCode === 401 && body.error.code === "BAD_CREDENTIALS") {
+                setError("root", {
+                    message: "E-mail e/ou senha incorretos"
+                })
+            } else {
+                setError("root", {
+                    message: "Não foi possível se comunicar com o servidor, tente novamente mais tarde."
+                })
+            }
+            return
+        }
+
+        console.log(body)
+
     }
 
     return (
