@@ -11,6 +11,7 @@ import { Spinner } from "@/shared/components/ui/spinner"
 import { Field, FieldDescription } from "@/shared/components/ui/field"
 import { BackendApiResponse } from "@/shared/types/backend-api-response"
 import { LoginApiResponse } from "../types/login-api-response"
+import { useRouter } from "next/navigation"
 
 export function LoginForm() {
 
@@ -22,6 +23,8 @@ export function LoginForm() {
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
     })
+
+    const router = useRouter()
 
     const onSubmit = async (data: LoginFormData) => {
         const response = await fetch("/api/login", {
@@ -47,7 +50,7 @@ export function LoginForm() {
             return
         }
 
-        console.log(body)
+        router.push("/workspace-selection")
 
     }
 
