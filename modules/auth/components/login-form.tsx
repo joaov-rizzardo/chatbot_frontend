@@ -3,56 +3,19 @@
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowRight, Lock, Mail } from "lucide-react"
-import { LoginFormData, loginSchema } from "../schemas/login-schema"
-import { useForm } from "react-hook-form"
 import { Spinner } from "@/shared/components/ui/spinner"
 import { Field, FieldDescription } from "@/shared/components/ui/field"
-import { BackendApiResponse } from "@/shared/types/backend-api-response"
-import { LoginApiResponse } from "../types/login-api-response"
-import { useRouter } from "next/navigation"
+import { useLoginForm } from "../hooks/use-login-form"
 
 export function LoginForm() {
-
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting },
-        setError
-    } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
-    })
-
-    const router = useRouter()
-
-    const onSubmit = async (data: LoginFormData) => {
-        const response = await fetch("/api/login", {
-            method: "POST",
-            body: JSON.stringify({
-                email: data.email,
-                password: data.password
-            })
-        })
-
-        const body = await response.json() as BackendApiResponse<LoginApiResponse>
-
-        if (!body.success) {
-            if (body.statusCode === 401 && body.error.code === "BAD_CREDENTIALS") {
-                setError("root", {
-                    message: "E-mail e/ou senha incorretos"
-                })
-            } else {
-                setError("root", {
-                    message: "Não foi possível se comunicar com o servidor, tente novamente mais tarde."
-                })
-            }
-            return
-        }
-
-        router.push("/workspace-selection")
-
-    }
+        errors,
+        isSubmitting,
+        onSubmit
+    } = useLoginForm()
 
     return (
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
