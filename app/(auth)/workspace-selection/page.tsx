@@ -1,13 +1,16 @@
 import { WorkspaceSelectionForm } from "@/modules/auth/components/workspace-selection-form";
+import { getWorkspaces } from "@/modules/auth/services/workspace-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { isLogged } from "@/shared/services/session-manager";
 import { MessageSquare } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function WorkspaceSelectionPage() {
-    if (! await isLogged()) {
+    if (!(await isLogged())) {
         redirect("/logout")
     }
+
+    const workspaces = await getWorkspaces()
 
     return (
         <div className="relative z-10 w-full max-w-md">
@@ -26,7 +29,7 @@ export default async function WorkspaceSelectionPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
-                    <WorkspaceSelectionForm />
+                    <WorkspaceSelectionForm workspaces={workspaces} />
                 </CardContent>
             </Card>
 
