@@ -9,10 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { Bell, ChevronDown, HelpCircle, LogOut, CreditCard, Settings, User } from "lucide-react"
+import { Bell, ChevronDown, HelpCircle, LogOut, CreditCard, Settings, Smartphone, User } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
+import { InstancesModal } from "@/modules/instances/components/instances-modal"
 
 export function AppHeader() {
+  const [instancesOpen, setInstancesOpen] = useState(false)
   return (
     <header
       className={cn(
@@ -21,6 +24,14 @@ export function AppHeader() {
       )}
     >
       <div className="flex flex-end items-center gap-2">
+        <button
+          type="button"
+          className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="Instâncias WhatsApp"
+          onClick={() => setInstancesOpen(true)}
+        >
+          <Smartphone className="h-5 w-5" />
+        </button>
         <button
           type="button"
           className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -97,6 +108,7 @@ export function AppHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <InstancesModal open={instancesOpen} onOpenChange={setInstancesOpen} />
     </header>
   )
 }
