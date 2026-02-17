@@ -68,7 +68,7 @@ export function InstancesModal({ open, onOpenChange }: InstancesModalProps) {
                 <div className="pt-2">
                     <Button className="w-full" onClick={handleCreate}>
                         <Plus className="h-4 w-4" />
-                        Criar nova instância
+                        Criar nova conexão
                     </Button>
                 </div>
             </DialogContent>
