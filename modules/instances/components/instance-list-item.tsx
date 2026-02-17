@@ -21,10 +21,10 @@ export function InstanceListItem({ instance, onEdit, onReconnect, onDelete }: In
                         <InstanceStatusIndicator status={instance.status} />
                     </div>
                     <p className="text-sm font-medium text-foreground truncate">
-                        {instance.phoneNumber ? formatPhone(instance.phoneNumber) : instance.instanceName}
+                        {instance.phoneNumber ? formatPhone(instance.phoneNumber) : "-"}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
-                        {instance.instanceName.substring(1, 25)}
+                        {instance.name}
                     </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">

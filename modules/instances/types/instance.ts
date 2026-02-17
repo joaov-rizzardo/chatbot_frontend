@@ -2,6 +2,7 @@ export type InstanceStatus = "open" | "connecting" | "close" | "refused"
 
 export type Instance = {
     id: string
+    name: string
     instanceName: string
     instanceId: string
     workspaceId: string
