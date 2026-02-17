@@ -24,7 +24,7 @@ export function InstanceListItem({ instance, onEdit, onReconnect, onDelete }: In
                         {instance.phoneNumber ? formatPhone(instance.phoneNumber) : instance.instanceName}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
-                        {instance.instanceName}
+                        {instance.instanceName.substring(1, 25)}
                     </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">

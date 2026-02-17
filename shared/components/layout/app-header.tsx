@@ -108,7 +108,8 @@ export function AppHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <InstancesModal open={instancesOpen} onOpenChange={setInstancesOpen} />
+      {instancesOpen && <InstancesModal open={instancesOpen} onOpenChange={setInstancesOpen} />}
+      
     </header>
   )
 }

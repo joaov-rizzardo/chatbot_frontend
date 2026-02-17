@@ -10,8 +10,10 @@ import { Badge } from "@/shared/components/ui/badge"
 import { ScrollArea } from "@/shared/components/ui/scroll-area"
 import { Button } from "@/shared/components/ui/button"
 import { Plus } from "lucide-react"
-import { MOCK_INSTANCES, MOCK_INSTANCE_USAGE } from "../constants/mock-instances"
+import { MOCK_INSTANCE_USAGE } from "../constants/mock-instances"
+import { useInstancesQuery } from "../queries/use-instances-query"
 import { InstanceListItem } from "./instance-list-item"
+import { InstanceListSkeleton } from "./instance-list-skeleton"
 
 interface InstancesModalProps {
     open: boolean
@@ -19,6 +21,8 @@ interface InstancesModalProps {
 }
 
 export function InstancesModal({ open, onOpenChange }: InstancesModalProps) {
+    const { data: instances, isLoading } = useInstancesQuery()
+
     const handleEdit = (instanceName: string) => {
         // TODO: integrate with backend
         console.log("Edit:", instanceName)
@@ -52,17 +56,25 @@ export function InstancesModal({ open, onOpenChange }: InstancesModalProps) {
                 </DialogHeader>
 
                 <ScrollArea className="max-h-80">
-                    <div className="flex flex-col gap-2 pr-3">
-                        {MOCK_INSTANCES.map((instance) => (
-                            <InstanceListItem
-                                key={instance.id}
-                                instance={instance}
-                                onEdit={handleEdit}
-                                onReconnect={handleReconnect}
-                                onDelete={handleDelete}
-                            />
-                        ))}
-                    </div>
+                    {isLoading ? (
+                        <InstanceListSkeleton />
+                    ) : instances && instances.length > 0 ? (
+                        <div className="flex flex-col gap-2 pr-3">
+                            {instances.map((instance) => (
+                                <InstanceListItem
+                                    key={instance.id}
+                                    instance={instance}
+                                    onEdit={handleEdit}
+                                    onReconnect={handleReconnect}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground text-center py-6">
+                            Nenhuma conexão encontrada.
+                        </p>
+                    )}
                 </ScrollArea>
 
                 <div className="pt-2">
