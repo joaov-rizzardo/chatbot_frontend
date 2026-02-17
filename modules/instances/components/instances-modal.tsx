@@ -45,7 +45,7 @@ export function InstancesModal({ open, onOpenChange }: InstancesModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md" onOpenAutoFocus={e => e.preventDefault()}>
                 <DialogHeader>
                     <div className="flex items-center justify-between">
                         <DialogTitle>Conexões WhatsApp</DialogTitle>
