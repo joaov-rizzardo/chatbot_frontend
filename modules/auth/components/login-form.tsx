@@ -39,6 +39,7 @@ export function LoginForm() {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                     <Input
                         id="password"
+                        type="password"
                         placeholder="••••••••"
                         className="pl-11 pr-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary focus:ring-primary/20 h-12"
                         {...register('password')}
