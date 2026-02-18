@@ -1,0 +1,107 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/shared/components/ui/dialog"
+import { Button } from "@/shared/components/ui/button"
+import { Skeleton } from "@/shared/components/ui/skeleton"
+import { RefreshCw } from "lucide-react"
+import { QrCodeMock } from "./qr-code-mock"
+import type { Instance } from "../types/instance"
+
+interface ReconnectInstanceDialogProps {
+    instance: Instance | null
+    open: boolean
+    onOpenChange: (open: boolean) => void
+}
+
+type Step = "loading" | "qr-code"
+
+export function ReconnectInstanceDialog({ instance, open, onOpenChange }: ReconnectInstanceDialogProps) {
+    const [step, setStep] = useState<Step>("loading")
+
+    // Auto-start loading whenever the dialog opens
+    useEffect(() => {
+        if (!open) return
+        setStep("loading")
+        // TODO: call backend to get reconnect QR code
+        const timer = setTimeout(() => setStep("qr-code"), 1200)
+        return () => clearTimeout(timer)
+    }, [open])
+
+    const handleRefresh = () => {
+        setStep("loading")
+        // TODO: call backend to refresh QR code
+        setTimeout(() => setStep("qr-code"), 1200)
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-sm" onOpenAutoFocus={e => e.preventDefault()}>
+                {step === "loading" ? (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>Reconectando</DialogTitle>
+                            <DialogDescription>
+                                Gerando um novo QR code para{" "}
+                                <span className="font-medium text-foreground">{instance?.name}</span>.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="flex flex-col items-center gap-3 py-2">
+                            <Skeleton className="w-48 h-48 rounded-lg" />
+                            <Skeleton className="w-40 h-3 rounded" />
+                        </div>
+
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => onOpenChange(false)}>
+                                Cancelar
+                            </Button>
+                        </DialogFooter>
+                    </>
+                ) : (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>Escaneie o QR Code</DialogTitle>
+                            <DialogDescription>
+                                Abra o WhatsApp &rarr; Aparelhos conectados &rarr; Conectar aparelho.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="flex flex-col items-center gap-3 py-2">
+                            <div className="w-48 h-48 rounded-lg bg-white p-3 shadow-sm border border-border">
+                                <QrCodeMock />
+                            </div>
+
+                            <div className="flex flex-col items-center gap-1">
+                                <p className="text-xs text-muted-foreground">
+                                    Reconectando{" "}
+                                    <span className="font-medium text-foreground">{instance?.name}</span>
+                                </p>
+                                <button
+                                    onClick={handleRefresh}
+                                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                                >
+                                    <RefreshCw className="h-3 w-3" />
+                                    Gerar novo código
+                                </button>
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => onOpenChange(false)}>
+                                Fechar
+                            </Button>
+                        </DialogFooter>
+                    </>
+                )}
+            </DialogContent>
+        </Dialog>
+    )
+}
