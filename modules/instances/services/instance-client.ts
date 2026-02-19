@@ -39,6 +39,20 @@ export async function reconnectInstance(instanceName: string): Promise<InstanceW
     return response.json()
 }
 
+export async function updateInstance(instanceName: string, name: string): Promise<Instance> {
+    const response = await clientFetch(`/api/instance/${instanceName}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+    })
+
+    if (!response.ok) {
+        throw new Error("Falha ao atualizar instância.")
+    }
+
+    return response.json()
+}
+
 export async function deleteInstance(instanceName: string): Promise<void> {
     const response = await clientFetch(`/api/instance/${instanceName}`, {
         method: "DELETE",

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
     Dialog,
     DialogContent,
@@ -13,6 +12,7 @@ import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import type { Instance } from "../types/instance"
+import { useEditInstanceDialog } from "../hooks/use-edit-instance-dialog"
 
 interface EditInstanceDialogProps {
     instance: Instance
@@ -20,16 +20,11 @@ interface EditInstanceDialogProps {
 }
 
 export function EditInstanceDialog({ instance, onClose }: EditInstanceDialogProps) {
-    const [name, setName] = useState(instance.name)
-
-    const handleSave = () => {
-        if (!name.trim()) return
-        // TODO: call backend to update instance name
-        console.log("Update instance:", instance.instanceName, "→", name.trim())
-        onClose()
-    }
-
-    const isDirty = name.trim() !== instance.name && name.trim() !== ""
+    const { name, setName, isDirty, handleSave, isSaving, error } = useEditInstanceDialog({
+        instanceName: instance.instanceName,
+        currentName: instance.name,
+        onClose,
+    })
 
     return (
         <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
@@ -49,15 +44,20 @@ export function EditInstanceDialog({ instance, onClose }: EditInstanceDialogProp
                         onChange={e => setName(e.target.value)}
                         onKeyDown={e => e.key === "Enter" && isDirty && handleSave()}
                         autoFocus
+                        disabled={isSaving}
                     />
                 </div>
 
+                {error && (
+                    <p className="text-sm text-destructive">{error}</p>
+                )}
+
                 <DialogFooter>
-                    <Button variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={onClose} disabled={isSaving}>
                         Cancelar
                     </Button>
-                    <Button onClick={handleSave} disabled={!isDirty}>
-                        Salvar
+                    <Button onClick={handleSave} disabled={!isDirty || isSaving}>
+                        {isSaving ? "Salvando..." : "Salvar"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

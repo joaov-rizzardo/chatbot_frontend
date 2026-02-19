@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import {
     Dialog,
     DialogContent,
@@ -12,31 +11,19 @@ import {
 import { Button } from "@/shared/components/ui/button"
 import { Skeleton } from "@/shared/components/ui/skeleton"
 import { RefreshCw } from "lucide-react"
-import { QrCodeMock } from "./qr-code-mock"
 import type { Instance } from "../types/instance"
+import { useReconnectInstanceDialog } from "../hooks/use-reconnect-instance-dialog"
 
 interface ReconnectInstanceDialogProps {
     instance: Instance
     onClose: () => void
 }
 
-type Step = "loading" | "qr-code"
-
 export function ReconnectInstanceDialog({ instance, onClose }: ReconnectInstanceDialogProps) {
-    const [step, setStep] = useState<Step>("loading")
-
-    // Auto-start on mount
-    useEffect(() => {
-        // TODO: call backend to get reconnect QR code
-        const timer = setTimeout(() => setStep("qr-code"), 1200)
-        return () => clearTimeout(timer)
-    }, [])
-
-    const handleRefresh = () => {
-        setStep("loading")
-        // TODO: call backend to refresh QR code
-        setTimeout(() => setStep("qr-code"), 1200)
-    }
+    const { step, qrCode, error, handleRefresh } = useReconnectInstanceDialog({
+        instanceName: instance.instanceName,
+        onClose,
+    })
 
     return (
         <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
@@ -72,8 +59,18 @@ export function ReconnectInstanceDialog({ instance, onClose }: ReconnectInstance
                         </DialogHeader>
 
                         <div className="flex flex-col items-center gap-3 py-2">
-                            <div className="w-48 h-48 rounded-lg bg-white p-3 shadow-sm border border-border">
-                                <QrCodeMock />
+                            <div className="w-48 h-48 rounded-lg bg-white p-3 shadow-sm border border-border flex items-center justify-center">
+                                {qrCode ? (
+                                    <img
+                                        src={qrCode}
+                                        alt="QR Code WhatsApp"
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    <p className="text-xs text-muted-foreground text-center">
+                                        QR Code indisponível.
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex flex-col items-center gap-1">
@@ -81,6 +78,9 @@ export function ReconnectInstanceDialog({ instance, onClose }: ReconnectInstance
                                     Reconectando{" "}
                                     <span className="font-medium text-foreground">{instance.name}</span>
                                 </p>
+                                {error && (
+                                    <p className="text-xs text-destructive">{error}</p>
+                                )}
                                 <button
                                     onClick={handleRefresh}
                                     className="flex items-center gap-1 text-xs text-primary hover:underline"

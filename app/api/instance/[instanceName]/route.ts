@@ -1,6 +1,27 @@
 import { backendCall } from "@/lib/backend-call";
 import { NextRequest, NextResponse } from "next/server";
 
+export async function PATCH(
+    request: NextRequest,
+    { params }: { params: Promise<{ instanceName: string }> },
+) {
+    const { instanceName } = await params;
+    const body = await request.json();
+    const response = await backendCall(`/instance/${instanceName}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        return NextResponse.json(err, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
+}
+
 export async function DELETE(
     _request: NextRequest,
     { params }: { params: Promise<{ instanceName: string }> },
