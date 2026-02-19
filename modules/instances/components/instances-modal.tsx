@@ -93,28 +93,30 @@ export function InstancesModal({ open, onOpenChange }: InstancesModalProps) {
                 </DialogContent>
             </Dialog>
 
-            <CreateInstanceDialog
-                open={createOpen}
-                onOpenChange={setCreateOpen}
-            />
+            {createOpen && (
+                <CreateInstanceDialog onClose={() => setCreateOpen(false)} />
+            )}
 
-            <EditInstanceDialog
-                instance={editInstance}
-                open={editInstance !== null}
-                onOpenChange={(o) => { if (!o) setEditInstance(null) }}
-            />
+            {editInstance && (
+                <EditInstanceDialog
+                    instance={editInstance}
+                    onClose={() => setEditInstance(null)}
+                />
+            )}
 
-            <DeleteInstanceDialog
-                instance={deleteInstance}
-                open={deleteInstance !== null}
-                onOpenChange={(o) => { if (!o) setDeleteInstance(null) }}
-            />
+            {deleteInstance && (
+                <DeleteInstanceDialog
+                    instance={deleteInstance}
+                    onClose={() => setDeleteInstance(null)}
+                />
+            )}
 
-            <ReconnectInstanceDialog
-                instance={reconnectInstance}
-                open={reconnectInstance !== null}
-                onOpenChange={(o) => { if (!o) setReconnectInstance(null) }}
-            />
+            {reconnectInstance && (
+                <ReconnectInstanceDialog
+                    instance={reconnectInstance}
+                    onClose={() => setReconnectInstance(null)}
+                />
+            )}
         </>
     )
 }

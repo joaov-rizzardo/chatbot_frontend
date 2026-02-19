@@ -11,3 +11,5 @@ export type Instance = {
     createdAt: string
     updatedAt: string
 }
+
+export type InstanceWithQrCode = Instance & { qrCode: string | null }

@@ -1,5 +1,5 @@
 import { backendCall } from "@/lib/backend-call";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
     const response = await backendCall("/instance");
@@ -11,4 +11,20 @@ export async function GET() {
 
     const data = await response.json();
     return NextResponse.json(data);
+}
+
+export async function POST(request: NextRequest) {
+    const body = await request.json();
+    const response = await backendCall("/instance", {
+        method: "POST",
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        return NextResponse.json(err, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data, { status: 201 });
 }

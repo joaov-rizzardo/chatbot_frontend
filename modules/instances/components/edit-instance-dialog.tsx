@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
     Dialog,
     DialogContent,
@@ -15,29 +15,24 @@ import { Label } from "@/shared/components/ui/label"
 import type { Instance } from "../types/instance"
 
 interface EditInstanceDialogProps {
-    instance: Instance | null
-    open: boolean
-    onOpenChange: (open: boolean) => void
+    instance: Instance
+    onClose: () => void
 }
 
-export function EditInstanceDialog({ instance, open, onOpenChange }: EditInstanceDialogProps) {
-    const [name, setName] = useState("")
-
-    useEffect(() => {
-        if (instance) setName(instance.name)
-    }, [instance])
+export function EditInstanceDialog({ instance, onClose }: EditInstanceDialogProps) {
+    const [name, setName] = useState(instance.name)
 
     const handleSave = () => {
-        if (!name.trim() || !instance) return
+        if (!name.trim()) return
         // TODO: call backend to update instance name
         console.log("Update instance:", instance.instanceName, "→", name.trim())
-        onOpenChange(false)
+        onClose()
     }
 
-    const isDirty = name.trim() !== instance?.name && name.trim() !== ""
+    const isDirty = name.trim() !== instance.name && name.trim() !== ""
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
             <DialogContent className="sm:max-w-sm" onOpenAutoFocus={e => e.preventDefault()}>
                 <DialogHeader>
                     <DialogTitle>Editar conexão</DialogTitle>
@@ -58,7 +53,7 @@ export function EditInstanceDialog({ instance, open, onOpenChange }: EditInstanc
                 </div>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                    <Button variant="outline" onClick={onClose}>
                         Cancelar
                     </Button>
                     <Button onClick={handleSave} disabled={!isDirty}>

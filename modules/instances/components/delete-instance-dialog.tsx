@@ -13,21 +13,19 @@ import { TriangleAlert } from "lucide-react"
 import type { Instance } from "../types/instance"
 
 interface DeleteInstanceDialogProps {
-    instance: Instance | null
-    open: boolean
-    onOpenChange: (open: boolean) => void
+    instance: Instance
+    onClose: () => void
 }
 
-export function DeleteInstanceDialog({ instance, open, onOpenChange }: DeleteInstanceDialogProps) {
+export function DeleteInstanceDialog({ instance, onClose }: DeleteInstanceDialogProps) {
     const handleDelete = () => {
-        if (!instance) return
         // TODO: call backend to delete instance
         console.log("Delete instance:", instance.instanceName)
-        onOpenChange(false)
+        onClose()
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
             <DialogContent className="sm:max-w-sm" onOpenAutoFocus={e => e.preventDefault()}>
                 <DialogHeader>
                     <div className="flex items-start gap-3">
@@ -39,7 +37,7 @@ export function DeleteInstanceDialog({ instance, open, onOpenChange }: DeleteIns
                             <DialogDescription>
                                 Tem certeza que deseja excluir{" "}
                                 <span className="font-medium text-foreground">
-                                    {instance?.name}
+                                    {instance.name}
                                 </span>
                                 ? Esta ação não poderá ser desfeita.
                             </DialogDescription>
@@ -48,7 +46,7 @@ export function DeleteInstanceDialog({ instance, open, onOpenChange }: DeleteIns
                 </DialogHeader>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                    <Button variant="outline" onClick={onClose}>
                         Cancelar
                     </Button>
                     <Button variant="destructive" onClick={handleDelete}>

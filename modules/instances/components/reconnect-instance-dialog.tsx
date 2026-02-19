@@ -16,24 +16,21 @@ import { QrCodeMock } from "./qr-code-mock"
 import type { Instance } from "../types/instance"
 
 interface ReconnectInstanceDialogProps {
-    instance: Instance | null
-    open: boolean
-    onOpenChange: (open: boolean) => void
+    instance: Instance
+    onClose: () => void
 }
 
 type Step = "loading" | "qr-code"
 
-export function ReconnectInstanceDialog({ instance, open, onOpenChange }: ReconnectInstanceDialogProps) {
+export function ReconnectInstanceDialog({ instance, onClose }: ReconnectInstanceDialogProps) {
     const [step, setStep] = useState<Step>("loading")
 
-    // Auto-start loading whenever the dialog opens
+    // Auto-start on mount
     useEffect(() => {
-        if (!open) return
-        setStep("loading")
         // TODO: call backend to get reconnect QR code
         const timer = setTimeout(() => setStep("qr-code"), 1200)
         return () => clearTimeout(timer)
-    }, [open])
+    }, [])
 
     const handleRefresh = () => {
         setStep("loading")
@@ -42,7 +39,7 @@ export function ReconnectInstanceDialog({ instance, open, onOpenChange }: Reconn
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
             <DialogContent className="sm:max-w-sm" onOpenAutoFocus={e => e.preventDefault()}>
                 {step === "loading" ? (
                     <>
@@ -50,7 +47,7 @@ export function ReconnectInstanceDialog({ instance, open, onOpenChange }: Reconn
                             <DialogTitle>Reconectando</DialogTitle>
                             <DialogDescription>
                                 Gerando um novo QR code para{" "}
-                                <span className="font-medium text-foreground">{instance?.name}</span>.
+                                <span className="font-medium text-foreground">{instance.name}</span>.
                             </DialogDescription>
                         </DialogHeader>
 
@@ -60,7 +57,7 @@ export function ReconnectInstanceDialog({ instance, open, onOpenChange }: Reconn
                         </div>
 
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => onOpenChange(false)}>
+                            <Button variant="outline" onClick={onClose}>
                                 Cancelar
                             </Button>
                         </DialogFooter>
@@ -82,7 +79,7 @@ export function ReconnectInstanceDialog({ instance, open, onOpenChange }: Reconn
                             <div className="flex flex-col items-center gap-1">
                                 <p className="text-xs text-muted-foreground">
                                     Reconectando{" "}
-                                    <span className="font-medium text-foreground">{instance?.name}</span>
+                                    <span className="font-medium text-foreground">{instance.name}</span>
                                 </p>
                                 <button
                                     onClick={handleRefresh}
@@ -95,7 +92,7 @@ export function ReconnectInstanceDialog({ instance, open, onOpenChange }: Reconn
                         </div>
 
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => onOpenChange(false)}>
+                            <Button variant="outline" onClick={onClose}>
                                 Fechar
                             </Button>
                         </DialogFooter>

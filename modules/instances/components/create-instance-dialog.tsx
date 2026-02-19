@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
     Dialog,
     DialogContent,
@@ -14,42 +13,26 @@ import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Skeleton } from "@/shared/components/ui/skeleton"
 import { RefreshCw } from "lucide-react"
-import { QrCodeMock } from "./qr-code-mock"
+import { useCreateInstanceDialog } from "../hooks/use-create-instance-dialog"
 
 interface CreateInstanceDialogProps {
-    open: boolean
-    onOpenChange: (open: boolean) => void
+    onClose: () => void
 }
 
-type Step = "name" | "loading" | "qr-code"
-
-export function CreateInstanceDialog({ open, onOpenChange }: CreateInstanceDialogProps) {
-    const [step, setStep] = useState<Step>("name")
-    const [instanceName, setInstanceName] = useState("")
-
-    const resetAndClose = () => {
-        onOpenChange(false)
-        setTimeout(() => {
-            setStep("name")
-            setInstanceName("")
-        }, 200)
-    }
-
-    const handleGenerateQr = () => {
-        if (!instanceName.trim()) return
-        setStep("loading")
-        // TODO: call backend to create instance and get QR code
-        setTimeout(() => setStep("qr-code"), 1200)
-    }
-
-    const handleRefresh = () => {
-        setStep("loading")
-        // TODO: call backend to refresh QR code
-        setTimeout(() => setStep("qr-code"), 1200)
-    }
+export function CreateInstanceDialog({ onClose }: CreateInstanceDialogProps) {
+    const {
+        step,
+        instanceDisplayName,
+        setInstanceDisplayName,
+        qrCode,
+        error,
+        handleCreate,
+        handleRefresh,
+        resetAndClose,
+    } = useCreateInstanceDialog({ onClose })
 
     return (
-        <Dialog open={open} onOpenChange={(o) => { if (!o) resetAndClose() }}>
+        <Dialog open onOpenChange={(o) => { if (!o) resetAndClose() }}>
             <DialogContent className="sm:max-w-sm" onOpenAutoFocus={e => e.preventDefault()}>
                 {step === "name" && (
                     <>
@@ -65,18 +48,21 @@ export function CreateInstanceDialog({ open, onOpenChange }: CreateInstanceDialo
                             <Input
                                 id="new-instance-name"
                                 placeholder="Ex: Atendimento, Vendas..."
-                                value={instanceName}
-                                onChange={e => setInstanceName(e.target.value)}
-                                onKeyDown={e => e.key === "Enter" && handleGenerateQr()}
+                                value={instanceDisplayName}
+                                onChange={e => setInstanceDisplayName(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && handleCreate()}
                                 autoFocus
                             />
+                            {error && (
+                                <p className="text-xs text-destructive">{error}</p>
+                            )}
                         </div>
 
                         <DialogFooter>
                             <Button variant="outline" onClick={resetAndClose}>
                                 Cancelar
                             </Button>
-                            <Button onClick={handleGenerateQr} disabled={!instanceName.trim()}>
+                            <Button onClick={handleCreate} disabled={!instanceDisplayName.trim()}>
                                 Gerar QR Code
                             </Button>
                         </DialogFooter>
@@ -115,15 +101,28 @@ export function CreateInstanceDialog({ open, onOpenChange }: CreateInstanceDialo
                         </DialogHeader>
 
                         <div className="flex flex-col items-center gap-3 py-2">
-                            <div className="w-48 h-48 rounded-lg bg-white p-3 shadow-sm border border-border">
-                                <QrCodeMock />
+                            <div className="w-48 h-48 rounded-lg bg-white p-3 shadow-sm border border-border flex items-center justify-center">
+                                {qrCode ? (
+                                    <img
+                                        src={qrCode}
+                                        alt="QR Code WhatsApp"
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    <p className="text-xs text-muted-foreground text-center">
+                                        QR Code indisponível.
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex flex-col items-center gap-1">
                                 <p className="text-xs text-muted-foreground">
                                     Conectando como{" "}
-                                    <span className="font-medium text-foreground">{instanceName}</span>
+                                    <span className="font-medium text-foreground">{instanceDisplayName}</span>
                                 </p>
+                                {error && (
+                                    <p className="text-xs text-destructive">{error}</p>
+                                )}
                                 <button
                                     onClick={handleRefresh}
                                     className="flex items-center gap-1 text-xs text-primary hover:underline"
