@@ -38,3 +38,13 @@ export async function reconnectInstance(instanceName: string): Promise<InstanceW
 
     return response.json()
 }
+
+export async function deleteInstance(instanceName: string): Promise<void> {
+    const response = await clientFetch(`/api/instance/${instanceName}`, {
+        method: "DELETE",
+    })
+
+    if (!response.ok) {
+        throw new Error("Falha ao excluir instância.")
+    }
+}

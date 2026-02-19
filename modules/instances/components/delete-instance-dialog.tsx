@@ -11,6 +11,7 @@ import {
 import { Button } from "@/shared/components/ui/button"
 import { TriangleAlert } from "lucide-react"
 import type { Instance } from "../types/instance"
+import { useDeleteInstanceDialog } from "../hooks/use-delete-instance-dialog"
 
 interface DeleteInstanceDialogProps {
     instance: Instance
@@ -18,11 +19,10 @@ interface DeleteInstanceDialogProps {
 }
 
 export function DeleteInstanceDialog({ instance, onClose }: DeleteInstanceDialogProps) {
-    const handleDelete = () => {
-        // TODO: call backend to delete instance
-        console.log("Delete instance:", instance.instanceName)
-        onClose()
-    }
+    const { handleDelete, isDeleting, error } = useDeleteInstanceDialog({
+        instanceName: instance.instanceName,
+        onClose,
+    })
 
     return (
         <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
@@ -45,12 +45,16 @@ export function DeleteInstanceDialog({ instance, onClose }: DeleteInstanceDialog
                     </div>
                 </DialogHeader>
 
+                {error && (
+                    <p className="text-sm text-destructive">{error}</p>
+                )}
+
                 <DialogFooter>
-                    <Button variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={onClose} disabled={isDeleting}>
                         Cancelar
                     </Button>
-                    <Button variant="destructive" onClick={handleDelete}>
-                        Excluir
+                    <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+                        {isDeleting ? "Excluindo..." : "Excluir"}
                     </Button>
                 </DialogFooter>
             </DialogContent>
