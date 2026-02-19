@@ -43,6 +43,7 @@ export function EditInstanceDialog({ instance, onClose }: EditInstanceDialogProp
                         value={name}
                         onChange={e => setName(e.target.value)}
                         onKeyDown={e => e.key === "Enter" && isDirty && handleSave()}
+                        maxLength={20}
                         autoFocus
                         disabled={isSaving}
                     />

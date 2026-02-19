@@ -51,6 +51,7 @@ export function CreateInstanceDialog({ onClose }: CreateInstanceDialogProps) {
                                 value={instanceDisplayName}
                                 onChange={e => setInstanceDisplayName(e.target.value)}
                                 onKeyDown={e => e.key === "Enter" && handleCreate()}
+                                maxLength={20}
                                 autoFocus
                             />
                             {error && (
