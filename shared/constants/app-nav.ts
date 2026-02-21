@@ -1,6 +1,7 @@
 export const APP_NAV_ITEMS = [
   { label: "Conversas", href: "/app/conversations", icon: "MessageCircle" },
   { label: "Contatos", href: "/app/contacts", icon: "Users" },
+  { label: "Etiquetas", href: "/app/tags", icon: "Tag" },
   { label: "Chatbots", href: "/app/chatbots", icon: "Bot" },
   { label: "Automações", href: "/app/automations", icon: "Workflow" },
   { label: "Campanhas", href: "/app/campaigns", icon: "Send" },

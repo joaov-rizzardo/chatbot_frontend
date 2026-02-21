@@ -11,6 +11,7 @@ import {
   MessageCircle,
   Send,
   Settings,
+  Tag,
   Users,
   Workflow,
   Zap,
@@ -27,6 +28,7 @@ import {
 const ICON_MAP = {
   MessageCircle,
   Users,
+  Tag,
   Bot,
   Workflow,
   Send,
