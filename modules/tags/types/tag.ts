@@ -67,12 +67,12 @@ export const TAG_COLOR_MAP: Record<
     cardBg: "bg-gradient-to-br from-amber-400 to-amber-500",
   },
   rose: {
-    label: "Rosa",
-    swatch: "bg-rose-500",
-    badgeBg: "bg-rose-50",
-    badgeText: "text-rose-700",
-    badgeRing: "ring-rose-200/80",
-    cardBg: "bg-gradient-to-br from-rose-500 to-rose-600",
+    label: "Vermelho",
+    swatch: "bg-red-500",
+    badgeBg: "bg-red-50",
+    badgeText: "text-red-700",
+    badgeRing: "ring-red-200/80",
+    cardBg: "bg-gradient-to-br from-red-500 to-red-600",
   },
   orange: {
     label: "Laranja",
