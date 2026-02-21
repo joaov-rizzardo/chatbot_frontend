@@ -1,18 +1,11 @@
 import { cn } from "@/lib/utils"
 import type { InstanceStatus } from "../types/instance"
 
-const STATUS_COLORS: Record<InstanceStatus, string> = {
-    open: "bg-emerald-500",
-    connecting: "bg-yellow-500",
-    close: "bg-red-500",
-    refused: "bg-red-500",
-}
-
-const STATUS_LABELS: Record<InstanceStatus, string> = {
-    open: "Conectado",
-    connecting: "Conectando",
-    close: "Desconectado",
-    refused: "Recusado",
+const STATUS_CONFIG: Record<InstanceStatus, { dot: string; pulse: boolean; label: string }> = {
+    open:       { dot: "bg-emerald-500", pulse: true,  label: "Conectado" },
+    connecting: { dot: "bg-amber-500",   pulse: true,  label: "Conectando" },
+    close:      { dot: "bg-rose-500",    pulse: false, label: "Desconectado" },
+    refused:    { dot: "bg-rose-500",    pulse: false, label: "Recusado" },
 }
 
 interface InstanceStatusIndicatorProps {
@@ -20,13 +13,16 @@ interface InstanceStatusIndicatorProps {
 }
 
 export function InstanceStatusIndicator({ status }: InstanceStatusIndicatorProps) {
+    const { dot, pulse, label } = STATUS_CONFIG[status]
     return (
         <div className="flex items-center gap-2">
-            <span
-                className={cn("h-2.5 w-2.5 rounded-full shrink-0", STATUS_COLORS[status])}
-                aria-label={STATUS_LABELS[status]}
-            />
-            <span className="text-xs text-muted-foreground">{STATUS_LABELS[status]}</span>
+            <span className="relative flex h-2 w-2 shrink-0">
+                {pulse && (
+                    <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-50", dot)} />
+                )}
+                <span className={cn("relative inline-flex rounded-full h-2 w-2", dot)} />
+            </span>
+            <span className="text-xs text-muted-foreground tracking-wide">{label}</span>
         </div>
     )
 }

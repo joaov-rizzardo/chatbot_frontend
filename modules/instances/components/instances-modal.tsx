@@ -7,10 +7,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/shared/components/ui/dialog"
-import { Badge } from "@/shared/components/ui/badge"
 import { ScrollArea } from "@/shared/components/ui/scroll-area"
 import { Button } from "@/shared/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Wifi } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { MOCK_INSTANCE_USAGE } from "../constants/mock-instances"
 import { useInstancesQuery } from "../queries/use-instances-query"
 import { InstanceListItem } from "./instance-list-item"
@@ -49,24 +49,46 @@ export function InstancesModal({ open, onOpenChange }: InstancesModalProps) {
         setDeleteInstance(instance)
     }
 
+    const usagePct = (MOCK_INSTANCE_USAGE.current / MOCK_INSTANCE_USAGE.limit) * 100
+
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="sm:max-w-md" onOpenAutoFocus={e => e.preventDefault()}>
-                    <DialogHeader>
-                        <div className="flex items-center justify-between">
-                            <DialogTitle>Conexões WhatsApp</DialogTitle>
-                            <Badge variant="secondary" className="text-xs mr-2">
-                                {MOCK_INSTANCE_USAGE.current}/{MOCK_INSTANCE_USAGE.limit}
-                            </Badge>
+                <DialogContent className="sm:max-w-md gap-4" onOpenAutoFocus={e => e.preventDefault()}>
+                    <DialogHeader className="pb-0">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 border border-emerald-500/20">
+                                    <Wifi className="h-3.5 w-3.5 text-emerald-500" />
+                                </div>
+                                <DialogTitle className="text-base">Conexões WhatsApp</DialogTitle>
+                            </div>
+
+                            <div className="flex flex-col items-end gap-1 shrink-0 mr-6">
+                                <span className="text-xs text-muted-foreground tabular-nums">
+                                    {MOCK_INSTANCE_USAGE.current}
+                                    <span className="text-muted-foreground/40">/{MOCK_INSTANCE_USAGE.limit}</span>
+                                </span>
+                                <div className="w-16 h-1 rounded-full bg-border/60 overflow-hidden">
+                                    <div
+                                        className={cn(
+                                            "h-full rounded-full transition-all duration-500",
+                                            usagePct >= 90 ? "bg-rose-500" :
+                                            usagePct >= 70 ? "bg-amber-500" :
+                                            "bg-emerald-500"
+                                        )}
+                                        style={{ width: `${usagePct}%` }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </DialogHeader>
 
-                    <ScrollArea className="max-h-80">
+                    <ScrollArea className="max-h-72">
                         {isLoading ? (
                             <InstanceListSkeleton />
                         ) : instances && instances.length > 0 ? (
-                            <div className="flex flex-col gap-2 pr-3">
+                            <div className="flex flex-col gap-1.5 pr-3">
                                 {instances.map((instance) => (
                                     <InstanceListItem
                                         key={instance.id}
@@ -78,16 +100,21 @@ export function InstancesModal({ open, onOpenChange }: InstancesModalProps) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-sm text-muted-foreground text-center py-6">
-                                Nenhuma conexão encontrada.
-                            </p>
+                            <div className="flex flex-col items-center gap-3 py-10">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-border/60">
+                                    <Wifi className="h-4.5 w-4.5 text-muted-foreground/50" />
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    Nenhuma conexão encontrada.
+                                </p>
+                            </div>
                         )}
                     </ScrollArea>
 
-                    <div className="pt-2">
-                        <Button className="w-full" onClick={() => setCreateOpen(true)}>
+                    <div className="border-t border-border/60 pt-3">
+                        <Button className="w-full gap-2 h-9" onClick={() => setCreateOpen(true)}>
                             <Plus className="h-4 w-4" />
-                            Criar nova conexão
+                            Nova conexão
                         </Button>
                     </div>
                 </DialogContent>

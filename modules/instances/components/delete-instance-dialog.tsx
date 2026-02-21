@@ -29,8 +29,8 @@ export function DeleteInstanceDialog({ instance, onClose }: DeleteInstanceDialog
             <DialogContent className="sm:max-w-sm" onOpenAutoFocus={e => e.preventDefault()}>
                 <DialogHeader>
                     <div className="flex items-start gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-                            <TriangleAlert className="h-5 w-5 text-destructive" />
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-rose-500/10 border border-rose-500/20">
+                            <TriangleAlert className="h-4 w-4 text-rose-500" />
                         </div>
                         <div className="flex flex-col gap-1">
                             <DialogTitle>Excluir conexão</DialogTitle>
@@ -53,7 +53,12 @@ export function DeleteInstanceDialog({ instance, onClose }: DeleteInstanceDialog
                     <Button variant="outline" onClick={onClose} disabled={isDeleting}>
                         Cancelar
                     </Button>
-                    <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+                    <Button
+                        variant="destructive"
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                        className="bg-rose-600 hover:bg-rose-700"
+                    >
                         {isDeleting ? "Excluindo..." : "Excluir"}
                     </Button>
                 </DialogFooter>
