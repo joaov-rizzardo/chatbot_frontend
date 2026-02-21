@@ -1,8 +1,5 @@
+import { ContactsList } from "@/modules/contacts/components/contacts-list"
+
 export default function ContactsPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground">Contatos</h1>
-      <p className="mt-1 text-muted-foreground">Conteúdo da página de contatos.</p>
-    </div>
-  )
+  return <ContactsList />
 }
