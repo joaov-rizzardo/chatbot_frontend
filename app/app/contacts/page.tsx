@@ -1,4 +1,4 @@
-export default function ContatosPage() {
+export default function ContactsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-foreground">Contatos</h1>

@@ -1,11 +1,11 @@
 export const APP_NAV_ITEMS = [
-  { label: "Conversas", href: "/app/conversas", icon: "MessageCircle" },
-  { label: "Contatos", href: "/app/contatos", icon: "Users" },
+  { label: "Conversas", href: "/app/conversations", icon: "MessageCircle" },
+  { label: "Contatos", href: "/app/contacts", icon: "Users" },
   { label: "Chatbots", href: "/app/chatbots", icon: "Bot" },
-  { label: "Automações", href: "/app/automacoes", icon: "Workflow" },
-  { label: "Campanhas", href: "/app/campanhas", icon: "Send" },
-  { label: "Relatórios", href: "/app/relatorios", icon: "BarChart3" },
-  { label: "Configurações", href: "/app/configuracoes", icon: "Settings" },
+  { label: "Automações", href: "/app/automations", icon: "Workflow" },
+  { label: "Campanhas", href: "/app/campaigns", icon: "Send" },
+  { label: "Relatórios", href: "/app/reports", icon: "BarChart3" },
+  { label: "Configurações", href: "/app/settings", icon: "Settings" },
 ] as const
 
 export const APP_PLAN = {

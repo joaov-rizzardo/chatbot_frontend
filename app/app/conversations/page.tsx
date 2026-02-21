@@ -1,4 +1,4 @@
-export default function ConversasPage() {
+export default function ConversationsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-foreground">Conversas</h1>

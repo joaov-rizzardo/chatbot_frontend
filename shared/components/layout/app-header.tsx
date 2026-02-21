@@ -79,7 +79,7 @@ export function AppHeader() {
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link
-                href="/app/configuracoes"
+                href="/app/settings"
                 className="flex items-center gap-2 cursor-pointer"
               >
                 <Settings className="h-4 w-4" />

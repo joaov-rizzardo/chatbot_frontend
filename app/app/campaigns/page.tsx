@@ -1,4 +1,4 @@
-export default function CampanhasPage() {
+export default function CampaignsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-foreground">Campanhas</h1>
