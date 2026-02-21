@@ -74,6 +74,14 @@ export async function getLoggedUser(): Promise<AccessTokenPayload> {
     return payload
 }
 
+export async function hasWorkspace(): Promise<boolean> {
+    const cookiesStore = await cookies();
+    const accessToken = cookiesStore.get(ACCESS_TOKEN_COOKIE_NAME)
+    if (!accessToken) return false
+    const payload = jwt.decode(accessToken.value) as AccessTokenPayload
+    return Boolean(payload.workspaceId)
+}
+
 export async function isAccessTokenNearExpiration(): Promise<boolean> {
     const cookiesStore = await cookies();
     const nowInSeconds = Math.floor(Date.now() / 1000)

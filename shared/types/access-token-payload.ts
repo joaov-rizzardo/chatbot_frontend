@@ -1,3 +1,5 @@
+export type WorkspaceRole = "OWNER" | "MEMBER"
+
 export type AccessTokenPayload = {
     sessionId: string,
     name: string,
@@ -5,5 +7,7 @@ export type AccessTokenPayload = {
     email: string,
     iat: number,
     exp: number,
-    sub: string
+    sub: string,
+    workspaceId?: string,
+    workspaceRole?: WorkspaceRole
 }
