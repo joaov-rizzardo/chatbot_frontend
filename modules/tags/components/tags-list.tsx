@@ -1,14 +1,8 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import {
-  Search,
-  Tag,
-  Users,
-  TrendingUp,
-  Plus,
-  ArrowUpDown,
-} from "lucide-react"
+import { Search, Tag, Plus, ArrowUpDown, Layers, Flame, Users, TrendingUp } from "lucide-react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Input } from "@/shared/components/ui/input"
 import { Button } from "@/shared/components/ui/button"
 import {
@@ -18,32 +12,39 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
 import { TagCard } from "./tag-card"
+import { TagCardSkeleton } from "./tag-card-skeleton"
 import { CreateTagDialog } from "./create-tag-dialog"
 import StatChip from "./stat-chip"
 import TagsEmptyState from "./tags-empty-state"
 import { sortTags, type SortKey, SORT_LABELS } from "../utils/sort-tags"
-import { MOCK_TAGS, TAG_COLOR_MAP, type Tag as TagType, type TagColor } from "../types/tag"
+import { useTagsQuery, tagsQueryKey } from "../queries/use-tags-query"
+import { createTag, deleteTag } from "../services/tag-client"
+import type { Tag as TagType, TagColor } from "../types/tag"
 
 export function TagsList() {
-  const [tags, setTags] = useState<TagType[]>(MOCK_TAGS)
+  const { data: tags = [], isLoading } = useTagsQuery()
+  const queryClient = useQueryClient()
+
   const [search, setSearch] = useState("")
   const [sortKey, setSortKey] = useState<SortKey>("usage-desc")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isCreating, setIsCreating] = useState(false)
 
-  const stats = useMemo(
-    () => ({
-      total: tags.length,
-      totalUsages: tags.reduce((sum, t) => sum + t.usageCount, 0),
-      mostUsed: tags.reduce(
-        (best, t) => (t.usageCount > best.usageCount ? t : best),
-        tags[0],
-      ),
-    }),
-    [tags],
-  )
+  const createMutation = useMutation({
+    mutationFn: (data: { name: string; color: TagColor; description?: string }) =>
+      createTag(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tagsQueryKey })
+      setIsCreateOpen(false)
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (tag: TagType) => deleteTag(tag.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tagsQueryKey })
+    },
+  })
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -56,27 +57,6 @@ export function TagsList() {
       : tags
     return sortTags(result, sortKey)
   }, [tags, search, sortKey])
-
-  function handleCreate(data: { name: string; color: TagColor; description?: string }) {
-    setIsCreating(true)
-    setTimeout(() => {
-      const newTag: TagType = {
-        id: String(Date.now()),
-        name: data.name,
-        color: data.color,
-        description: data.description,
-        usageCount: 0,
-        createdAt: new Date().toISOString(),
-      }
-      setTags((prev) => [newTag, ...prev])
-      setIsCreating(false)
-      setIsCreateOpen(false)
-    }, 800)
-  }
-
-  function handleDelete(tag: TagType) {
-    setTags((prev) => prev.filter((t) => t.id !== tag.id))
-  }
 
   function handleEdit(tag: TagType) {
     console.log("edit", tag)
@@ -110,35 +90,26 @@ export function TagsList() {
             <StatChip
               icon={Tag}
               label="etiquetas"
-              value={stats.total}
+              value={tags.length}
               className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
             />
             <StatChip
               icon={Users}
               label="usos totais"
-              value={stats.totalUsages.toLocaleString("pt-BR")}
+              value={tags.reduce((sum, t) => sum + t.usageCount, 0)}
               className="bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300"
             />
-            {stats.mostUsed && (
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                <TrendingUp className="h-3.5 w-3.5 shrink-0" />
-                <span className="text-sm font-semibold">
-                  {stats.mostUsed.name}
-                </span>
-                <span className="hidden text-xs font-medium opacity-70 sm:inline">
-                  mais usada
-                </span>
-                <span
-                  className={cn(
-                    "inline-flex h-5 items-center rounded-full px-2 text-[11px] font-bold",
-                    TAG_COLOR_MAP[stats.mostUsed.color].badgeBg,
-                    TAG_COLOR_MAP[stats.mostUsed.color].badgeText,
-                  )}
-                >
-                  {stats.mostUsed.usageCount}
-                </span>
-              </div>
-            )}
+            {(() => {
+              const mostUsed = tags.reduce((best, t) => t.usageCount > best.usageCount ? t : best, tags[0])
+              return (
+                <StatChip
+                  icon={TrendingUp}
+                  value={mostUsed.name}
+                  label="mais usada"
+                  className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                />
+              )
+            })()}
           </div>
         )}
 
@@ -187,7 +158,13 @@ export function TagsList() {
         )}
 
         {/* Grid */}
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <TagCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <TagsEmptyState search={search} />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -196,7 +173,7 @@ export function TagsList() {
                 key={tag.id}
                 tag={tag}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={(tag) => deleteMutation.mutate(tag)}
               />
             ))}
           </div>
@@ -206,8 +183,8 @@ export function TagsList() {
       <CreateTagDialog
         open={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
-        onCreate={handleCreate}
-        isLoading={isCreating}
+        onCreate={(data) => createMutation.mutate(data)}
+        isLoading={createMutation.isPending}
       />
     </>
   )

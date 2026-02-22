@@ -118,75 +118,11 @@ export const TAG_COLOR_MAP: Record<
 
 export type Tag = {
   id: string
+  workspaceId: string
   name: string
   color: TagColor
-  description?: string
-  usageCount: number
+  description: string | null
   createdAt: string
+  updatedAt: string
+  usageCount: number
 }
-
-export const MOCK_TAGS: Tag[] = [
-  {
-    id: "1",
-    name: "VIP",
-    color: "amber",
-    description: "Clientes de alto valor com relacionamento prioritário",
-    usageCount: 47,
-    createdAt: "2025-12-01T10:00:00Z",
-  },
-  {
-    id: "2",
-    name: "Lead",
-    color: "blue",
-    description: "Potenciais clientes em processo de qualificação",
-    usageCount: 128,
-    createdAt: "2025-11-15T08:30:00Z",
-  },
-  {
-    id: "3",
-    name: "Cliente",
-    color: "emerald",
-    description: "Clientes ativos com compra confirmada",
-    usageCount: 312,
-    createdAt: "2025-10-20T14:00:00Z",
-  },
-  {
-    id: "4",
-    name: "Suporte",
-    color: "violet",
-    description: "Contatos com tickets de suporte em aberto",
-    usageCount: 23,
-    createdAt: "2026-01-05T09:00:00Z",
-  },
-  {
-    id: "5",
-    name: "Potencial",
-    color: "orange",
-    description: "Leads quentes com alta probabilidade de conversão",
-    usageCount: 89,
-    createdAt: "2026-01-12T11:30:00Z",
-  },
-  {
-    id: "6",
-    name: "Inativo",
-    color: "rose",
-    description: "Contatos sem interação nos últimos 90 dias",
-    usageCount: 56,
-    createdAt: "2026-01-18T16:00:00Z",
-  },
-  {
-    id: "7",
-    name: "Parceiro",
-    color: "teal",
-    description: "Parceiros comerciais e de negócios",
-    usageCount: 18,
-    createdAt: "2026-02-01T10:00:00Z",
-  },
-  {
-    id: "8",
-    name: "Fornecedor",
-    color: "indigo",
-    usageCount: 11,
-    createdAt: "2026-02-10T13:00:00Z",
-  },
-]

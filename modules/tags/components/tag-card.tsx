@@ -1,6 +1,6 @@
 "use client"
 
-import { Tag as TagIcon, Users, Calendar, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { Tag as TagIcon, Calendar, Users, MoreVertical, Pencil, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { type Tag, TAG_COLOR_MAP } from "../types/tag"
 import { Button } from "@/shared/components/ui/button"
@@ -84,21 +84,10 @@ export function TagCard({ tag, onEdit, onDelete }: TagCardProps) {
         )}
 
         <div className="mt-auto flex items-center justify-between">
-          {/* Usage badge */}
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1",
-              color.badgeBg,
-              color.badgeText,
-              color.badgeRing,
-            )}
-          >
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
             <Users className="h-3 w-3" />
-            {tag.usageCount.toLocaleString("pt-BR")}
-            <span className="font-normal opacity-70">contatos</span>
+            {tag.usageCount.toLocaleString("pt-BR")} contato{tag.usageCount !== 1 ? "s" : ""}
           </span>
-
-          {/* Date */}
           <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
             <Calendar className="h-3 w-3" />
             {createdDate}
