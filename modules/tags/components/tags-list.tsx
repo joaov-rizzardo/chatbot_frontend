@@ -15,12 +15,15 @@ import { TagCard } from "./tag-card"
 import { TagCardSkeleton } from "./tag-card-skeleton"
 import { CreateTagDialog } from "./create-tag-dialog"
 import { DeleteTagDialog } from "./delete-tag-dialog"
+import { EditTagDialog } from "./edit-tag-dialog"
+import { EditTagConfirmationDialog } from "./edit-tag-confirmation-dialog"
 import StatChip from "./stat-chip"
 import TagsEmptyState from "./tags-empty-state"
 import { sortTags, type SortKey, SORT_LABELS } from "../utils/sort-tags"
 import { useTagsQuery } from "../queries/use-tags-query"
 import { useCreateTagDialog } from "../hooks/use-create-tag-dialog"
 import { useDeleteTagDialog } from "../hooks/use-delete-tag-dialog"
+import { useEditTagDialog } from "../hooks/use-edit-tag-dialog"
 import type { Tag as TagType } from "../types/tag"
 
 export function TagsList() {
@@ -31,6 +34,7 @@ export function TagsList() {
 
   const createTagDialog = useCreateTagDialog()
   const deleteTagDialog = useDeleteTagDialog()
+  const editTagDialog = useEditTagDialog()
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -43,10 +47,6 @@ export function TagsList() {
       : tags
     return sortTags(result, sortKey)
   }, [tags, search, sortKey])
-
-  function handleEdit(tag: TagType) {
-    console.log("edit", tag)
-  }
 
   return (
     <>
@@ -158,7 +158,7 @@ export function TagsList() {
               <TagCard
                 key={tag.id}
                 tag={tag}
-                onEdit={handleEdit}
+                onEdit={editTagDialog.openDialog}
                 onDelete={deleteTagDialog.openDialog}
               />
             ))}
@@ -181,6 +181,23 @@ export function TagsList() {
         isPending={deleteTagDialog.isPending}
         onConfirm={deleteTagDialog.handleConfirm}
         onClose={deleteTagDialog.handleClose}
+      />
+
+      <EditTagDialog
+        open={editTagDialog.open}
+        form={editTagDialog.form}
+        canSubmit={editTagDialog.canSubmit}
+        isPending={editTagDialog.isPending}
+        onSubmit={editTagDialog.onSubmit}
+        onClose={editTagDialog.handleClose}
+      />
+
+      <EditTagConfirmationDialog
+        open={editTagDialog.confirmOpen}
+        tag={editTagDialog.tagToEdit}
+        isPending={editTagDialog.isPending}
+        onConfirm={editTagDialog.handleConfirm}
+        onClose={editTagDialog.handleCancelConfirm}
       />
     </>
   )

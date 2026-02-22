@@ -35,7 +35,10 @@ export async function updateTag(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   })
-  if (!response.ok) throw new Error("Falha ao atualizar etiqueta.")
+  if (!response.ok) {
+    if (response.status === 409) throw new Error("Já existe uma etiqueta com esse nome.")
+    throw new Error("Falha ao atualizar etiqueta.")
+  }
   return response.json()
 }
 
