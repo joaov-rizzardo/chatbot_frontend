@@ -8,9 +8,7 @@ import {
   TrendingUp,
   Plus,
   ArrowUpDown,
-  SlidersHorizontal,
 } from "lucide-react"
-import type { ElementType } from "react"
 import { Input } from "@/shared/components/ui/input"
 import { Button } from "@/shared/components/ui/button"
 import {
@@ -23,96 +21,10 @@ import {
 import { cn } from "@/lib/utils"
 import { TagCard } from "./tag-card"
 import { CreateTagDialog } from "./create-tag-dialog"
+import StatChip from "./stat-chip"
+import TagsEmptyState from "./tags-empty-state"
+import { sortTags, type SortKey, SORT_LABELS } from "../utils/sort-tags"
 import { MOCK_TAGS, TAG_COLOR_MAP, type Tag as TagType, type TagColor } from "../types/tag"
-
-// ---------------------------------------------------------------------------
-// Sort options
-// ---------------------------------------------------------------------------
-
-type SortKey = "name-asc" | "name-desc" | "usage-desc" | "usage-asc" | "newest" | "oldest"
-
-const SORT_LABELS: Record<SortKey, string> = {
-  "name-asc": "Nome (A → Z)",
-  "name-desc": "Nome (Z → A)",
-  "usage-desc": "Mais usadas",
-  "usage-asc": "Menos usadas",
-  newest: "Mais recentes",
-  oldest: "Mais antigas",
-}
-
-function sortTags(tags: TagType[], key: SortKey): TagType[] {
-  return [...tags].sort((a, b) => {
-    switch (key) {
-      case "name-asc":
-        return a.name.localeCompare(b.name, "pt-BR")
-      case "name-desc":
-        return b.name.localeCompare(a.name, "pt-BR")
-      case "usage-desc":
-        return b.usageCount - a.usageCount
-      case "usage-asc":
-        return a.usageCount - b.usageCount
-      case "newest":
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      case "oldest":
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    }
-  })
-}
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-function StatChip({
-  icon: Icon,
-  label,
-  value,
-  className,
-}: {
-  icon: ElementType
-  label: string
-  value: string | number
-  className: string
-}) {
-  return (
-    <div className={cn("flex items-center gap-2 rounded-lg px-3 py-1.5", className)}>
-      <Icon className="h-3.5 w-3.5 shrink-0" />
-      <span className="text-sm font-semibold tabular-nums">{value}</span>
-      <span className="hidden text-xs font-medium opacity-70 sm:inline">{label}</span>
-    </div>
-  )
-}
-
-function EmptyState({ search }: { search: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border/60 bg-muted/20 py-24 text-center">
-      <div className="relative">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/80 ring-1 ring-border/60">
-          <Tag className="h-7 w-7 text-muted-foreground/50" />
-        </div>
-        {search && (
-          <div className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-background ring-2 ring-border/60">
-            <Search className="h-3 w-3 text-muted-foreground/60" />
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-semibold text-foreground">
-          {search ? "Nenhuma etiqueta encontrada" : "Nenhuma etiqueta criada"}
-        </p>
-        <p className="mx-auto max-w-[220px] text-xs leading-relaxed text-muted-foreground">
-          {search
-            ? "Tente buscar com outros termos ou limpe a busca."
-            : "Crie etiquetas para organizar e segmentar seus contatos."}
-        </p>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 
 export function TagsList() {
   const [tags, setTags] = useState<TagType[]>(MOCK_TAGS)
@@ -121,7 +33,6 @@ export function TagsList() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
 
-  // Global stats
   const stats = useMemo(
     () => ({
       total: tags.length,
@@ -134,7 +45,6 @@ export function TagsList() {
     [tags],
   )
 
-  // Filter + sort
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     const result = q
@@ -149,7 +59,6 @@ export function TagsList() {
 
   function handleCreate(data: { name: string; color: TagColor; description?: string }) {
     setIsCreating(true)
-    // Prototype: simulate async creation
     setTimeout(() => {
       const newTag: TagType = {
         id: String(Date.now()),
@@ -170,7 +79,6 @@ export function TagsList() {
   }
 
   function handleEdit(tag: TagType) {
-    // Prototype: no-op
     console.log("edit", tag)
   }
 
@@ -280,7 +188,7 @@ export function TagsList() {
 
         {/* Grid */}
         {filtered.length === 0 ? (
-          <EmptyState search={search} />
+          <TagsEmptyState search={search} />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((tag) => (
