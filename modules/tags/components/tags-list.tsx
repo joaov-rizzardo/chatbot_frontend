@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, Tag, Plus, ArrowUpDown, Layers, Flame, Users, TrendingUp } from "lucide-react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Search, Tag, Plus, ArrowUpDown, Users, TrendingUp } from "lucide-react"
 import { Input } from "@/shared/components/ui/input"
 import { Button } from "@/shared/components/ui/button"
 import {
@@ -15,29 +14,23 @@ import {
 import { TagCard } from "./tag-card"
 import { TagCardSkeleton } from "./tag-card-skeleton"
 import { CreateTagDialog } from "./create-tag-dialog"
+import { DeleteTagDialog } from "./delete-tag-dialog"
 import StatChip from "./stat-chip"
 import TagsEmptyState from "./tags-empty-state"
 import { sortTags, type SortKey, SORT_LABELS } from "../utils/sort-tags"
-import { useTagsQuery, tagsQueryKey } from "../queries/use-tags-query"
-import { deleteTag } from "../services/tag-client"
+import { useTagsQuery } from "../queries/use-tags-query"
 import { useCreateTagDialog } from "../hooks/use-create-tag-dialog"
+import { useDeleteTagDialog } from "../hooks/use-delete-tag-dialog"
 import type { Tag as TagType } from "../types/tag"
 
 export function TagsList() {
   const { data: tags = [], isLoading } = useTagsQuery()
-  const queryClient = useQueryClient()
 
   const [search, setSearch] = useState("")
   const [sortKey, setSortKey] = useState<SortKey>("usage-desc")
 
   const createTagDialog = useCreateTagDialog()
-
-  const deleteMutation = useMutation({
-    mutationFn: (tag: TagType) => deleteTag(tag.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tagsQueryKey })
-    },
-  })
+  const deleteTagDialog = useDeleteTagDialog()
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -166,7 +159,7 @@ export function TagsList() {
                 key={tag.id}
                 tag={tag}
                 onEdit={handleEdit}
-                onDelete={(tag) => deleteMutation.mutate(tag)}
+                onDelete={deleteTagDialog.openDialog}
               />
             ))}
           </div>
@@ -180,6 +173,14 @@ export function TagsList() {
         isPending={createTagDialog.isPending}
         onSubmit={createTagDialog.onSubmit}
         onClose={createTagDialog.handleClose}
+      />
+
+      <DeleteTagDialog
+        open={deleteTagDialog.open}
+        tag={deleteTagDialog.tagToDelete}
+        isPending={deleteTagDialog.isPending}
+        onConfirm={deleteTagDialog.handleConfirm}
+        onClose={deleteTagDialog.handleClose}
       />
     </>
   )

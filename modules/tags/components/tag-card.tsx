@@ -62,7 +62,7 @@ export function TagCard({ tag, onEdit, onDelete }: TagCardProps) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
+                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                 onClick={() => onDelete?.(tag)}
               >
                 <Trash2 className="mr-2 h-3.5 w-3.5" />
