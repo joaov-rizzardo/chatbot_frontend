@@ -19,8 +19,9 @@ import StatChip from "./stat-chip"
 import TagsEmptyState from "./tags-empty-state"
 import { sortTags, type SortKey, SORT_LABELS } from "../utils/sort-tags"
 import { useTagsQuery, tagsQueryKey } from "../queries/use-tags-query"
-import { createTag, deleteTag } from "../services/tag-client"
-import type { Tag as TagType, TagColor } from "../types/tag"
+import { deleteTag } from "../services/tag-client"
+import { useCreateTagDialog } from "../hooks/use-create-tag-dialog"
+import type { Tag as TagType } from "../types/tag"
 
 export function TagsList() {
   const { data: tags = [], isLoading } = useTagsQuery()
@@ -28,16 +29,8 @@ export function TagsList() {
 
   const [search, setSearch] = useState("")
   const [sortKey, setSortKey] = useState<SortKey>("usage-desc")
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
 
-  const createMutation = useMutation({
-    mutationFn: (data: { name: string; color: TagColor; description?: string }) =>
-      createTag(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tagsQueryKey })
-      setIsCreateOpen(false)
-    },
-  })
+  const createTagDialog = useCreateTagDialog()
 
   const deleteMutation = useMutation({
     mutationFn: (tag: TagType) => deleteTag(tag.id),
@@ -76,7 +69,7 @@ export function TagsList() {
           <Button
             size="sm"
             className="h-9 gap-2 shrink-0"
-            onClick={() => setIsCreateOpen(true)}
+            onClick={createTagDialog.openDialog}
           >
             <Plus className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Nova etiqueta</span>
@@ -181,10 +174,12 @@ export function TagsList() {
       </div>
 
       <CreateTagDialog
-        open={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onCreate={(data) => createMutation.mutate(data)}
-        isLoading={createMutation.isPending}
+        open={createTagDialog.open}
+        form={createTagDialog.form}
+        canSubmit={createTagDialog.canSubmit}
+        isPending={createTagDialog.isPending}
+        onSubmit={createTagDialog.onSubmit}
+        onClose={createTagDialog.handleClose}
       />
     </>
   )
