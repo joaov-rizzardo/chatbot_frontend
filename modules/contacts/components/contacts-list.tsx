@@ -21,6 +21,9 @@ import { Button } from "@/shared/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ContactListItem } from "./contact-list-item"
 import { ContactsFilterDialog } from "./contacts-filter-dialog"
+import { StatChip } from "./stat-chip"
+import { TabBar, type TabId } from "./tab-bar"
+import { ContactsEmptyState } from "./contacts-empty-state"
 import { useContactsFilterDialog } from "../hooks/use-contacts-filter-dialog"
 import { MOCK_CONTACTS, type Contact } from "../types/contact"
 
@@ -29,8 +32,6 @@ const PAGE_SIZE = 5
 // ---------------------------------------------------------------------------
 // Tab definitions
 // ---------------------------------------------------------------------------
-
-type TabId = "todos" | "recentes" | "novos" | "nunca-contatados"
 
 interface TabConfig {
   id: TabId
@@ -70,110 +71,6 @@ const TABS: TabConfig[] = [
     filter: (c) => !c.lastActivityAt,
   },
 ]
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-function StatChip({
-  icon: Icon,
-  label,
-  value,
-  className,
-}: {
-  icon: ElementType
-  label: string
-  value: number
-  className: string
-}) {
-  return (
-    <div className={cn("flex items-center gap-2 rounded-lg px-3 py-1.5", className)}>
-      <Icon className="h-3.5 w-3.5 shrink-0" />
-      <span className="text-sm font-semibold tabular-nums">{value}</span>
-      <span className="text-xs font-medium opacity-70 hidden sm:inline">{label}</span>
-    </div>
-  )
-}
-
-function TabBar({
-  tabs,
-  counts,
-  activeTab,
-  onTabChange,
-}: {
-  tabs: Pick<TabConfig, "id" | "label" | "icon">[]
-  counts: Record<TabId, number>
-  activeTab: TabId
-  onTabChange: (id: TabId) => void
-}) {
-  return (
-    <div className="flex items-center gap-1 overflow-x-auto pb-px scrollbar-hide">
-      {tabs.map(({ id, label, icon: Icon }) => {
-        const isActive = activeTab === id
-        const count = counts[id]
-        return (
-          <button
-            key={id}
-            onClick={() => onTabChange(id)}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-150 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            )}
-            aria-selected={isActive}
-          >
-            <Icon className="h-3.5 w-3.5 shrink-0" />
-            {label}
-            <span
-              className={cn(
-                "inline-flex items-center justify-center rounded-full px-1.5 py-px text-[11px] font-semibold tabular-nums min-w-[20px]",
-                isActive
-                  ? "bg-primary-foreground/20 text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-              )}
-            >
-              {count}
-            </span>
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-function EmptyState({ search, tabLabel }: { search: string; tabLabel: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border/60 bg-muted/20 py-20 text-center">
-      <div className="relative">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/80 ring-1 ring-border/60">
-          <Users className="h-7 w-7 text-muted-foreground/50" />
-        </div>
-        {search && (
-          <div className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-background ring-2 ring-border/60">
-            <Search className="h-3 w-3 text-muted-foreground/60" />
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-semibold text-foreground">
-          {search ? "Nenhum contato encontrado" : `Nenhum contato em "${tabLabel}"`}
-        </p>
-        <p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
-          {search
-            ? "Tente buscar com outros termos ou limpe a busca."
-            : "Nenhum contato corresponde a este filtro no momento."}
-        </p>
-      </div>
-      {!search && (
-        <Button size="sm" className="gap-2 mt-1">
-          <UserPlus className="h-3.5 w-3.5" />
-          Novo contato
-        </Button>
-      )}
-    </div>
-  )
-}
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -363,7 +260,7 @@ export function ContactsList() {
       {/* Contact list */}
       <div className="flex flex-col gap-1.5">
         {paginated.length === 0 ? (
-          <EmptyState search={search} tabLabel={activeTabLabel} />
+          <ContactsEmptyState search={search} tabLabel={activeTabLabel} />
         ) : (
           paginated.map((contact) => (
             <ContactListItem
