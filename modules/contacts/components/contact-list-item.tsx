@@ -3,13 +3,13 @@
 import type { CSSProperties } from "react"
 import { MessageCircle, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
-import { cn } from "@/lib/utils"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip"
+import { TagChip } from "@/shared/components/ui/tag-chip"
 import type { Contact } from "../types/contact"
 
 interface ContactListItemProps {
@@ -53,25 +53,6 @@ function getAvatarStyle(name: string): CSSProperties {
   const letter = name[0]?.toUpperCase() ?? "A"
   const [from, to] = AVATAR_GRADIENTS[letter] ?? ["#94A3B8", "#64748B"]
   return { background: `linear-gradient(135deg, ${from}, ${to})` }
-}
-
-// Semantic color system per tag name
-const TAG_CLASSES: Record<string, string> = {
-  vip: "bg-amber-50 text-amber-700 ring-amber-200/80 dark:bg-amber-950/30 dark:text-amber-400 dark:ring-amber-800/50",
-  lead: "bg-blue-50 text-blue-700 ring-blue-200/80 dark:bg-blue-950/30 dark:text-blue-400 dark:ring-blue-800/50",
-  cliente:
-    "bg-emerald-50 text-emerald-700 ring-emerald-200/80 dark:bg-emerald-950/30 dark:text-emerald-400 dark:ring-emerald-800/50",
-  suporte:
-    "bg-violet-50 text-violet-700 ring-violet-200/80 dark:bg-violet-950/30 dark:text-violet-400 dark:ring-violet-800/50",
-  potencial:
-    "bg-orange-50 text-orange-700 ring-orange-200/80 dark:bg-orange-950/30 dark:text-orange-400 dark:ring-orange-800/50",
-}
-
-function getTagClasses(tag: string): string {
-  return (
-    TAG_CLASSES[tag.toLowerCase()] ??
-    "bg-slate-50 text-slate-600 ring-slate-200/80 dark:bg-slate-800/40 dark:text-slate-400 dark:ring-slate-700/60"
-  )
 }
 
 function formatLastActivity(iso?: string): string {
@@ -131,15 +112,7 @@ export function ContactListItem({ contact, onMessage, onEdit, onDelete }: Contac
             <span className="text-xs text-muted-foreground/35 italic">Sem tags</span>
           ) : (
             contact.tags.map((tag) => (
-              <span
-                key={tag}
-                className={cn(
-                  "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold capitalize ring-1",
-                  getTagClasses(tag)
-                )}
-              >
-                {tag}
-              </span>
+              <TagChip key={tag.id} name={tag.name} color={tag.color} />
             ))
           )}
         </div>

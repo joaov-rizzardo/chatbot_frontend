@@ -20,6 +20,8 @@ import { Input } from "@/shared/components/ui/input"
 import { Button } from "@/shared/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ContactListItem } from "./contact-list-item"
+import { ContactsFilterDialog } from "./contacts-filter-dialog"
+import { useContactsFilterDialog } from "../hooks/use-contacts-filter-dialog"
 import { MOCK_CONTACTS, type Contact } from "../types/contact"
 
 const PAGE_SIZE = 5
@@ -182,6 +184,8 @@ export function ContactsList() {
   const [page, setPage] = useState(1)
   const [activeTab, setActiveTab] = useState<TabId>("todos")
 
+  const filterDialog = useContactsFilterDialog()
+
   // Stable date boundaries — recomputed only once on mount
   const weekAgo = useMemo(() => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), [])
   const monthsAgo = useMemo(() => new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), [])
@@ -218,7 +222,7 @@ export function ContactsList() {
         c.name.toLowerCase().includes(q) ||
         c.phone.includes(q) ||
         (c.email?.toLowerCase().includes(q) ?? false) ||
-        c.tags.some((t) => t.toLowerCase().includes(q))
+        c.tags.some((t) => t.name.toLowerCase().includes(q))
     )
   }, [activeTab, search, weekAgo, monthsAgo])
 
@@ -304,9 +308,22 @@ export function ContactsList() {
             className="pl-9 h-9"
           />
         </div>
-        <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "relative gap-2 h-9 shrink-0 transition-colors",
+            filterDialog.appliedCount > 0 && "border-primary/50 text-primary hover:border-primary hover:text-primary",
+          )}
+          onClick={() => filterDialog.setOpen(true)}
+        >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Filtros
+          {filterDialog.appliedCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground leading-none">
+              {filterDialog.appliedCount}
+            </span>
+          )}
         </Button>
       </div>
 
@@ -359,6 +376,15 @@ export function ContactsList() {
           ))
         )}
       </div>
+
+      {/* Filter dialog */}
+      <ContactsFilterDialog
+        open={filterDialog.open}
+        onOpenChange={filterDialog.setOpen}
+        filters={filterDialog.filters}
+        onApply={filterDialog.handleApply}
+        onReset={filterDialog.handleReset}
+      />
 
       {/* Pagination */}
       {filtered.length > 0 && (
