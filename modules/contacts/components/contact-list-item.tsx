@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip"
 import { TagChip } from "@/shared/components/ui/tag-chip"
+import { formatPhoneNumber } from "@/lib/format-phone-number"
 import type { Contact } from "../types/contact"
 import { ContactAvatar } from "./contact-avatar"
 
@@ -39,7 +40,7 @@ export function ContactListItem({ contact, onMessage, onEdit, onDelete }: Contac
             {contact.name}
           </p>
           <p className="text-xs text-muted-foreground truncate mt-0.5 font-medium tracking-tight">
-            {contact.phone}
+            {formatPhoneNumber(contact.phone)}
           </p>
         </div>
 

@@ -2,9 +2,9 @@ import { Button } from "@/shared/components/ui/button"
 import { Pencil, RefreshCw, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Instance } from "../types/instance"
-import { formatPhone } from "../utils/format-phone"
 import { InstanceStatusIndicator } from "./instance-status-indicator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip"
+import { formatPhoneNumber } from "@/lib/format-phone-number"
 
 const STATUS_BORDER: Record<string, string> = {
     open:       "border-l-emerald-500",
@@ -30,7 +30,7 @@ export function InstanceListItem({ instance, onEdit, onReconnect, onDelete }: In
                 <div className="flex flex-col gap-1 min-w-0">
                     <InstanceStatusIndicator status={instance.status} />
                     <p className="text-sm font-medium text-foreground truncate">
-                        {instance.phoneNumber ? formatPhone(instance.phoneNumber) : (
+                        {instance.phoneNumber ? formatPhoneNumber(instance.phoneNumber) : (
                             <span className="text-muted-foreground/50">—</span>
                         )}
                     </p>
