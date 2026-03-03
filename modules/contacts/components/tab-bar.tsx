@@ -34,7 +34,7 @@ export function TabBar({ tabs, counts, activeTab, onTabChange }: TabBarProps) {
             {label}
             <span
               className={cn(
-                "inline-flex items-center justify-center rounded-full px-1.5 py-px text-[11px] font-semibold tabular-nums min-w-[20px]",
+                "inline-flex items-center justify-center rounded-full px-1.5 py-px text-[11px] font-semibold tabular-nums min-w-5",
                 isActive
                   ? "bg-primary-foreground/20 text-primary-foreground"
                   : "bg-muted text-muted-foreground"

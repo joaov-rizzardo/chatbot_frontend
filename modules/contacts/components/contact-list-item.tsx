@@ -29,7 +29,7 @@ export function ContactListItem({ contact, onMessage, onEdit, onDelete }: Contac
     <TooltipProvider delayDuration={0}>
       <div className="group relative flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3.5 transition-all duration-200 hover:border-border hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.06)] hover:bg-muted/20 dark:hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.25)]">
         {/* Left accent stripe — scales in from center on hover */}
-        <span className="absolute left-0 inset-y-[12%] w-[3px] rounded-r-full bg-primary origin-center scale-y-0 transition-transform duration-200 ease-out group-hover:scale-y-100" />
+        <span className="absolute left-0 inset-y-[12%] w-0.75 rounded-r-full bg-primary origin-center scale-y-0 transition-transform duration-200 ease-out group-hover:scale-y-100" />
 
         <ContactAvatar name={contact.name} />
 

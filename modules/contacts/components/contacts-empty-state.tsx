@@ -25,7 +25,7 @@ export function ContactsEmptyState({ search, tabLabel }: ContactsEmptyStateProps
         <p className="text-sm font-semibold text-foreground">
           {search ? "Nenhum contato encontrado" : `Nenhum contato em "${tabLabel}"`}
         </p>
-        <p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
+        <p className="text-xs text-muted-foreground max-w-55 mx-auto leading-relaxed">
           {search
             ? "Tente buscar com outros termos ou limpe a busca."
             : "Nenhum contato corresponde a este filtro no momento."}

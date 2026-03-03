@@ -303,7 +303,7 @@ export function ContactsFilterDialog({
           <Button
             type="button"
             size="sm"
-            className="gap-2 min-w-[128px]"
+            className="gap-2 min-w-32"
             onClick={handleApply}
           >
             {activeCount > 0
