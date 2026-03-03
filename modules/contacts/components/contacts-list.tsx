@@ -21,10 +21,12 @@ import { Button } from "@/shared/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ContactListItem } from "./contact-list-item"
 import { ContactsFilterDialog } from "./contacts-filter-dialog"
+import { CreateContactDialog } from "./create-contact-dialog"
 import { StatChip } from "./stat-chip"
 import { TabBar, type TabId } from "./tab-bar"
 import { ContactsEmptyState } from "./contacts-empty-state"
 import { useContactsFilterDialog } from "../hooks/use-contacts-filter-dialog"
+import { useCreateContactDialog } from "../hooks/use-create-contact-dialog"
 import { ContactListItemSkeleton } from "./contact-list-item-skeleton"
 import { useContactsQuery } from "../queries/use-contacts-query"
 import type { Contact } from "../types/contact"
@@ -84,6 +86,7 @@ export function ContactsList() {
   const [activeTab, setActiveTab] = useState<TabId>("todos")
 
   const filterDialog = useContactsFilterDialog()
+  const createDialog = useCreateContactDialog()
   const { data: contacts = [], isLoading } = useContactsQuery()
 
   // Stable date boundaries — recomputed only once on mount
@@ -160,7 +163,7 @@ export function ContactsList() {
             <Upload className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Importar</span>
           </Button>
-          <Button size="sm" className="gap-2 h-9">
+          <Button size="sm" className="gap-2 h-9" onClick={createDialog.openDialog}>
             <UserPlus className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Novo contato</span>
           </Button>
@@ -280,6 +283,16 @@ export function ContactsList() {
           ))
         )}
       </div>
+
+      {/* Create contact dialog */}
+      <CreateContactDialog
+        open={createDialog.open}
+        form={createDialog.form}
+        canSubmit={createDialog.canSubmit}
+        isPending={createDialog.isPending}
+        onSubmit={createDialog.onSubmit}
+        onClose={createDialog.onClose}
+      />
 
       {/* Filter dialog */}
       <ContactsFilterDialog
