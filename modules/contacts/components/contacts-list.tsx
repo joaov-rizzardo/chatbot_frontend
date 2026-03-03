@@ -25,7 +25,9 @@ import { StatChip } from "./stat-chip"
 import { TabBar, type TabId } from "./tab-bar"
 import { ContactsEmptyState } from "./contacts-empty-state"
 import { useContactsFilterDialog } from "../hooks/use-contacts-filter-dialog"
-import { MOCK_CONTACTS, type Contact } from "../types/contact"
+import { ContactListItemSkeleton } from "./contact-list-item-skeleton"
+import { useContactsQuery } from "../queries/use-contacts-query"
+import type { Contact } from "../types/contact"
 
 const PAGE_SIZE = 5
 
@@ -82,6 +84,7 @@ export function ContactsList() {
   const [activeTab, setActiveTab] = useState<TabId>("todos")
 
   const filterDialog = useContactsFilterDialog()
+  const { data: contacts = [], isLoading } = useContactsQuery()
 
   // Stable date boundaries — recomputed only once on mount
   const weekAgo = useMemo(() => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), [])
@@ -90,28 +93,28 @@ export function ContactsList() {
   // Global stats (always from full dataset)
   const stats = useMemo(
     () => ({
-      total: MOCK_CONTACTS.length,
-      withTags: MOCK_CONTACTS.filter((c) => c.tags.length > 0).length,
-      activeThisWeek: MOCK_CONTACTS.filter(
+      total: contacts.length,
+      withTags: contacts.filter((c) => c.tags.length > 0).length,
+      activeThisWeek: contacts.filter(
         (c) => c.lastActivityAt && new Date(c.lastActivityAt) >= weekAgo
       ).length,
     }),
-    [weekAgo]
+    [contacts, weekAgo]
   )
 
   // Tab counts (always from full dataset, independent of search)
   const tabCounts = useMemo(
     () =>
       Object.fromEntries(
-        TABS.map((t) => [t.id, MOCK_CONTACTS.filter((c) => t.filter(c, weekAgo, monthsAgo)).length])
+        TABS.map((t) => [t.id, contacts.filter((c) => t.filter(c, weekAgo, monthsAgo)).length])
       ) as Record<TabId, number>,
-    [weekAgo, monthsAgo]
+    [contacts, weekAgo, monthsAgo]
   )
 
   // Active tab filter → then search filter
   const filtered = useMemo(() => {
     const activeTabConfig = TABS.find((t) => t.id === activeTab)!
-    const tabFiltered = MOCK_CONTACTS.filter((c) => activeTabConfig.filter(c, weekAgo, monthsAgo))
+    const tabFiltered = contacts.filter((c) => activeTabConfig.filter(c, weekAgo, monthsAgo))
     const q = search.trim().toLowerCase()
     if (!q) return tabFiltered
     return tabFiltered.filter(
@@ -121,7 +124,7 @@ export function ContactsList() {
         (c.email?.toLowerCase().includes(q) ?? false) ||
         c.tags.some((t) => t.name.toLowerCase().includes(q))
     )
-  }, [activeTab, search, weekAgo, monthsAgo])
+  }, [contacts, activeTab, search, weekAgo, monthsAgo])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -259,7 +262,11 @@ export function ContactsList() {
 
       {/* Contact list */}
       <div className="flex flex-col gap-1.5">
-        {paginated.length === 0 ? (
+        {isLoading ? (
+          Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <ContactListItemSkeleton key={i} />
+          ))
+        ) : paginated.length === 0 ? (
           <ContactsEmptyState search={search} tabLabel={activeTabLabel} />
         ) : (
           paginated.map((contact) => (
