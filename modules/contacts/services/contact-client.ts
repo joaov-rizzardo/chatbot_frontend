@@ -33,3 +33,22 @@ export async function listContacts(): Promise<Contact[]> {
   const data: BackendContact[] = await response.json()
   return data.map(mapContact)
 }
+
+export async function createContact(data: {
+  name: string
+  lastName?: string
+  phoneNumber: string
+  email?: string
+}): Promise<Contact> {
+  const response = await clientFetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) {
+    if (response.status === 409) throw new Error("Já existe um contato com esse número de telefone.")
+    throw new Error("Falha ao criar contato.")
+  }
+  const created: BackendContact = await response.json()
+  return mapContact(created)
+}

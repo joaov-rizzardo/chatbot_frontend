@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import { QueryProvider } from "@/shared/components/query-provider";
 import { SessionProvider } from "@/shared/components/session-provider";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
             {children}
           </SessionProvider>
         </QueryProvider>
+        <Toaster richColors />
       </body>
     </html>
   );
