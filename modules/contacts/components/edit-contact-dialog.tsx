@@ -1,7 +1,7 @@
 "use client"
 
 import type { UseFormReturn } from "react-hook-form"
-import { UserPen, Lock } from "lucide-react"
+import { UserPen, Lock, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ interface EditContactDialogProps {
   contact: Contact | null
   form: UseFormReturn<EditContactFormData>
   canSubmit: boolean
+  isPending: boolean
   onSubmit: () => void
   onClose: () => void
 }
@@ -30,6 +31,7 @@ export function EditContactDialog({
   contact,
   form,
   canSubmit,
+  isPending,
   onSubmit,
   onClose,
 }: EditContactDialogProps) {
@@ -120,12 +122,21 @@ export function EditContactDialog({
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 border-t border-border/50 pt-4">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} disabled={isPending}>
               Cancelar
             </Button>
             <Button onClick={onSubmit} disabled={!canSubmit} className="gap-2">
-              <UserPen className="h-3.5 w-3.5" />
-              Salvar alterações
+              {isPending ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <UserPen className="h-3.5 w-3.5" />
+                  Salvar alterações
+                </>
+              )}
             </Button>
           </div>
         </div>

@@ -306,7 +306,8 @@ export function ContactsList() {
         contact={editDialog.contact}
         form={editDialog.form}
         canSubmit={editDialog.canSubmit}
-        onSubmit={editDialog.form.handleSubmit(() => {})}
+        isPending={editDialog.isPending}
+        onSubmit={editDialog.onSubmit}
         onClose={editDialog.onClose}
       />
 

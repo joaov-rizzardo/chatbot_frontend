@@ -34,6 +34,20 @@ export async function listContacts(): Promise<Contact[]> {
   return data.map(mapContact)
 }
 
+export async function updateContact(
+  id: string,
+  data: { name: string; lastName?: string; email?: string },
+): Promise<Contact> {
+  const response = await clientFetch(`/api/contact/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) throw new Error("Falha ao atualizar contato.")
+  const updated: BackendContact = await response.json()
+  return mapContact(updated)
+}
+
 export async function deleteContact(id: string): Promise<void> {
   const response = await clientFetch(`/api/contact/${id}`, { method: "DELETE" })
   if (!response.ok) throw new Error("Falha ao excluir contato.")
