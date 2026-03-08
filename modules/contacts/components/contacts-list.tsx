@@ -23,12 +23,14 @@ import { ContactListItem } from "./contact-list-item"
 import { ContactsFilterDialog } from "./contacts-filter-dialog"
 import { CreateContactDialog } from "./create-contact-dialog"
 import { DeleteContactDialog } from "./delete-contact-dialog"
+import { EditContactDialog } from "./edit-contact-dialog"
 import { StatChip } from "./stat-chip"
 import { TabBar, type TabId } from "./tab-bar"
 import { ContactsEmptyState } from "./contacts-empty-state"
 import { useContactsFilterDialog } from "../hooks/use-contacts-filter-dialog"
 import { useCreateContactDialog } from "../hooks/use-create-contact-dialog"
 import { useDeleteContactDialog } from "../hooks/use-delete-contact-dialog"
+import { useEditContactDialog } from "../hooks/use-edit-contact-dialog"
 import { ContactListItemSkeleton } from "./contact-list-item-skeleton"
 import { useContactsQuery } from "../queries/use-contacts-query"
 import type { Contact } from "../types/contact"
@@ -90,6 +92,7 @@ export function ContactsList() {
   const filterDialog = useContactsFilterDialog()
   const createDialog = useCreateContactDialog()
   const deleteDialog = useDeleteContactDialog()
+  const editDialog = useEditContactDialog()
   const { data: contacts = [], isLoading } = useContactsQuery()
 
   // Stable date boundaries — recomputed only once on mount
@@ -280,7 +283,7 @@ export function ContactsList() {
               key={contact.id}
               contact={contact}
               onMessage={(id) => console.log("message", id)}
-              onEdit={(id) => console.log("edit", id)}
+              onEdit={() => editDialog.openDialog(contact)}
               onDelete={() => deleteDialog.openDialog(contact)}
             />
           ))
@@ -295,6 +298,16 @@ export function ContactsList() {
         isPending={createDialog.isPending}
         onSubmit={createDialog.onSubmit}
         onClose={createDialog.onClose}
+      />
+
+      {/* Edit contact dialog */}
+      <EditContactDialog
+        open={editDialog.open}
+        contact={editDialog.contact}
+        form={editDialog.form}
+        canSubmit={editDialog.canSubmit}
+        onSubmit={editDialog.form.handleSubmit(() => {})}
+        onClose={editDialog.onClose}
       />
 
       {/* Delete contact dialog */}
