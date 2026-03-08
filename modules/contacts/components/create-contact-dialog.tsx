@@ -14,7 +14,7 @@ import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Spinner } from "@/shared/components/ui/spinner"
-import { PhoneInput } from "./phone-input"
+import { PhoneInput } from "@/shared/components/ui/phone-input"
 import type { CreateContactFormData } from "../schemas/create-contact-schema"
 
 interface CreateContactDialogProps {

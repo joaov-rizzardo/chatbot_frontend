@@ -78,7 +78,7 @@ const { priority: PRIORITY_OPTIONS, rest: REST_OPTIONS } = buildOptions()
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-interface PhoneInputProps {
+export interface PhoneInputProps {
   value: string
   onChange: (value: string) => void
   onBlur?: () => void
