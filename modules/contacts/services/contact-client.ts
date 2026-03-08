@@ -34,6 +34,11 @@ export async function listContacts(): Promise<Contact[]> {
   return data.map(mapContact)
 }
 
+export async function deleteContact(id: string): Promise<void> {
+  const response = await clientFetch(`/api/contact/${id}`, { method: "DELETE" })
+  if (!response.ok) throw new Error("Falha ao excluir contato.")
+}
+
 export async function createContact(data: {
   name: string
   lastName?: string

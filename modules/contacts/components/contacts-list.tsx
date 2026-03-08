@@ -22,11 +22,13 @@ import { cn } from "@/lib/utils"
 import { ContactListItem } from "./contact-list-item"
 import { ContactsFilterDialog } from "./contacts-filter-dialog"
 import { CreateContactDialog } from "./create-contact-dialog"
+import { DeleteContactDialog } from "./delete-contact-dialog"
 import { StatChip } from "./stat-chip"
 import { TabBar, type TabId } from "./tab-bar"
 import { ContactsEmptyState } from "./contacts-empty-state"
 import { useContactsFilterDialog } from "../hooks/use-contacts-filter-dialog"
 import { useCreateContactDialog } from "../hooks/use-create-contact-dialog"
+import { useDeleteContactDialog } from "../hooks/use-delete-contact-dialog"
 import { ContactListItemSkeleton } from "./contact-list-item-skeleton"
 import { useContactsQuery } from "../queries/use-contacts-query"
 import type { Contact } from "../types/contact"
@@ -87,6 +89,7 @@ export function ContactsList() {
 
   const filterDialog = useContactsFilterDialog()
   const createDialog = useCreateContactDialog()
+  const deleteDialog = useDeleteContactDialog()
   const { data: contacts = [], isLoading } = useContactsQuery()
 
   // Stable date boundaries — recomputed only once on mount
@@ -278,7 +281,7 @@ export function ContactsList() {
               contact={contact}
               onMessage={(id) => console.log("message", id)}
               onEdit={(id) => console.log("edit", id)}
-              onDelete={(id) => console.log("delete", id)}
+              onDelete={() => deleteDialog.openDialog(contact)}
             />
           ))
         )}
@@ -292,6 +295,15 @@ export function ContactsList() {
         isPending={createDialog.isPending}
         onSubmit={createDialog.onSubmit}
         onClose={createDialog.onClose}
+      />
+
+      {/* Delete contact dialog */}
+      <DeleteContactDialog
+        open={deleteDialog.open}
+        contact={deleteDialog.contact}
+        isPending={deleteDialog.isPending}
+        onConfirm={deleteDialog.confirm}
+        onClose={deleteDialog.closeDialog}
       />
 
       {/* Filter dialog */}
