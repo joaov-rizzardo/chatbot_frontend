@@ -10,7 +10,7 @@ import { mockConversations } from "../data/mock-conversations"
 import { mockMessagesByConv } from "../data/mock-messages"
 
 export function ConversationsLayout() {
-  const [selectedId, setSelectedId] = useState<string | null>("1")
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
 
   const selectedConversation = mockConversations.find((c) => c.id === selectedId) ?? null
