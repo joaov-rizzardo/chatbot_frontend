@@ -17,7 +17,7 @@ export function ComposerButton({ icon, label, onClick, active, className }: Comp
       title={label}
       className={cn(
         "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
-        active && "bg-[oklch(0.22_0.05_150)]",
+        active && "bg-muted",
         className
       )}
     >

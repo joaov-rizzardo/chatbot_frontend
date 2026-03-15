@@ -35,14 +35,14 @@ export function MessageVideo({ thumbnailUrl, mediaUrl, caption, duration, isOutg
               />
             ) : (
               <div
-                className="w-[280px] bg-[oklch(0.18_0.04_150)] rounded-xl flex items-center justify-center"
+                className="w-[280px] bg-muted rounded-xl flex items-center justify-center"
                 style={{ aspectRatio: "16/9" }}
               >
-                <Play className="w-8 h-8 text-[oklch(0.45_0.08_148)]" />
+                <Play className="w-8 h-8 text-muted-foreground" />
               </div>
             )}
             {/* Overlay */}
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-xl">
+            <div className="absolute inset-0 bg-black/25 flex items-center justify-center rounded-xl">
               <button
                 type="button"
                 onClick={() => setPlaying(true)}
@@ -83,7 +83,7 @@ export function MessageVideo({ thumbnailUrl, mediaUrl, caption, duration, isOutg
         <p
           className={cn(
             "text-xs leading-relaxed max-w-[280px]",
-            isOutgoing ? "text-white/80" : "text-[oklch(0.75_0.02_150)]"
+            isOutgoing ? "text-primary-foreground/80" : "text-foreground"
           )}
         >
           {caption}

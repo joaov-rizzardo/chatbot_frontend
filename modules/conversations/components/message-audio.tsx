@@ -65,12 +65,15 @@ export function MessageAudio({ duration = 30, isOutgoing, mediaUrl }: MessageAud
         className={cn(
           "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all",
           isOutgoing
-            ? "bg-white/20 hover:bg-white/30 text-white"
-            : "bg-[oklch(0.48_0.16_145)] hover:bg-[oklch(0.52_0.18_145)] text-white"
+            ? "bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground"
+            : "bg-primary hover:bg-primary/90 text-primary-foreground"
         )}
         aria-label={playing ? "Pausar" : "Reproduzir áudio"}
       >
-        {playing ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
+        {playing
+          ? <Pause className="w-4 h-4" fill="currentColor" />
+          : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />
+        }
       </button>
 
       {/* Waveform */}
@@ -82,11 +85,11 @@ export function MessageAudio({ duration = 30, isOutgoing, mediaUrl }: MessageAud
               "flex-1 rounded-full transition-all duration-100",
               i < playedCount
                 ? isOutgoing
-                  ? "bg-white"
-                  : "bg-[oklch(0.55_0.18_145)]"
+                  ? "bg-primary-foreground"
+                  : "bg-primary"
                 : isOutgoing
-                ? "bg-white/35"
-                : "bg-[oklch(0.40_0.06_150)]"
+                ? "bg-primary-foreground/35"
+                : "bg-primary/25"
             )}
             style={{ height: `${Math.round(height * 100)}%` }}
           />
@@ -97,7 +100,7 @@ export function MessageAudio({ duration = 30, isOutgoing, mediaUrl }: MessageAud
       <span
         className={cn(
           "text-[10px] font-mono shrink-0 tabular-nums",
-          isOutgoing ? "text-white/70" : "text-[oklch(0.52_0.03_150)]"
+          isOutgoing ? "text-primary-foreground/70" : "text-muted-foreground"
         )}
       >
         {formatDuration(duration)}

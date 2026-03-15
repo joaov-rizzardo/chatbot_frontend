@@ -21,8 +21,8 @@ export function MessageReplyPreview({ reply, isOutgoing }: MessageReplyPreviewPr
       className={cn(
         "flex gap-2 rounded-lg px-3 py-2 mb-2 text-xs border-l-2",
         isOutgoing
-          ? "bg-[oklch(0.36_0.14_145)] border-white/40"
-          : "bg-[oklch(0.22_0.05_150)] border-[oklch(0.55_0.18_145)]"
+          ? "bg-primary-foreground/10 border-primary-foreground/40"
+          : "bg-muted border-primary"
       )}
     >
       {reply.thumbnailUrl && (
@@ -36,7 +36,7 @@ export function MessageReplyPreview({ reply, isOutgoing }: MessageReplyPreviewPr
         <p
           className={cn(
             "font-semibold mb-0.5 truncate",
-            isOutgoing ? "text-white/80" : "text-[oklch(0.65_0.12_148)]"
+            isOutgoing ? "text-primary-foreground/80" : "text-primary"
           )}
         >
           {reply.senderName}
@@ -44,7 +44,7 @@ export function MessageReplyPreview({ reply, isOutgoing }: MessageReplyPreviewPr
         <p
           className={cn(
             "truncate flex items-center gap-1",
-            isOutgoing ? "text-white/60" : "text-[oklch(0.52_0.03_150)]"
+            isOutgoing ? "text-primary-foreground/60" : "text-muted-foreground"
           )}
         >
           {TYPE_ICONS[reply.type]}

@@ -11,9 +11,9 @@ function formatTime(isoString: string): string {
 }
 
 function StatusIcon({ status }: { status: Message["status"] }) {
-  if (status === "sent") return <Check className="w-3 h-3 text-white/50" />
-  if (status === "delivered") return <CheckCheck className="w-3 h-3 text-white/60" />
-  if (status === "read") return <CheckCheck className="w-3 h-3 text-[oklch(0.72_0.22_200)]" />
+  if (status === "sent") return <Check className="w-3 h-3 text-white/60" />
+  if (status === "delivered") return <CheckCheck className="w-3 h-3 text-white/70" />
+  if (status === "read") return <CheckCheck className="w-3 h-3 text-sky-200" />
   return null
 }
 
@@ -31,17 +31,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         "flex gap-2 items-end max-w-[75%]",
         isOutgoing ? "ml-auto flex-row-reverse" : "mr-auto flex-row"
       )}
-      style={{
-        animation: "msgIn 0.18s ease-out both",
-      }}
+      style={{ animation: "msgIn 0.18s ease-out both" }}
     >
       {/* Avatar (incoming only) */}
       {!isOutgoing && (
-        <div className="shrink-0 w-7 h-7 rounded-full overflow-hidden mb-0.5 bg-[oklch(0.25_0.06_148)] flex items-center justify-center">
+        <div className="shrink-0 w-7 h-7 rounded-full overflow-hidden mb-0.5 bg-primary/10 flex items-center justify-center">
           {message.senderAvatarUrl ? (
             <img src={message.senderAvatarUrl} alt={message.senderName} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-[10px] font-bold text-[oklch(0.75_0.12_148)]">
+            <span className="text-[10px] font-bold text-primary">
               {message.senderName[0]}
             </span>
           )}
@@ -51,10 +49,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       {/* Bubble */}
       <div
         className={cn(
-          "relative px-3 py-2 rounded-2xl",
+          "relative px-3 py-2 rounded-2xl shadow-sm",
           isOutgoing
-            ? "bg-[oklch(0.46_0.16_145)] text-white rounded-br-sm"
-            : "bg-[oklch(0.18_0.04_150)] text-[oklch(0.88_0.02_150)] rounded-bl-sm",
+            ? "bg-primary text-primary-foreground rounded-br-sm"
+            : "bg-card text-foreground rounded-bl-sm border border-border",
           isMedia && "px-2 py-2"
         )}
       >
@@ -94,16 +92,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         )}
 
         {/* Timestamp + Status */}
-        <div
-          className={cn(
-            "flex items-center gap-1 mt-1",
-            isOutgoing ? "justify-end" : "justify-end"
-          )}
-        >
+        <div className="flex items-center gap-1 mt-1 justify-end">
           <span
             className={cn(
               "text-[10px] tabular-nums",
-              isOutgoing ? "text-white/55" : "text-[oklch(0.48_0.03_150)]"
+              isOutgoing ? "text-primary-foreground/60" : "text-muted-foreground"
             )}
           >
             {formatTime(message.sentAt)}

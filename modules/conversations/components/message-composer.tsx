@@ -83,14 +83,14 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
 
   if (recording) {
     return (
-      <div className="px-4 py-3 bg-[oklch(0.12_0.03_150)] border-t border-[oklch(0.20_0.04_150)] shrink-0">
-        <div className="flex items-center gap-3 bg-[oklch(0.16_0.04_150)] rounded-2xl px-4 py-3">
-          {/* Pulsing indicator */}
-          <span className="w-3 h-3 rounded-full bg-red-500 flex items-center justify-center">
+      <div className="px-4 py-3 bg-card border-t border-border shrink-0">
+        <div className="flex items-center gap-3 bg-muted rounded-2xl px-4 py-3">
+          <span className="relative w-3 h-3 flex items-center justify-center">
+            <span className="w-3 h-3 rounded-full bg-red-500" />
             <span className="w-3 h-3 rounded-full bg-red-500 animate-ping absolute" />
           </span>
-          <span className="text-sm font-semibold text-red-400">Gravando...</span>
-          <span className="text-sm font-mono tabular-nums text-[oklch(0.70_0.03_150)]">
+          <span className="text-sm font-semibold text-red-500">Gravando...</span>
+          <span className="text-sm font-mono tabular-nums text-muted-foreground">
             {formatRecording(recordingSeconds)}
           </span>
 
@@ -99,7 +99,7 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
             {Array.from({ length: 30 }, (_, i) => (
               <div
                 key={i}
-                className="flex-1 rounded-full bg-[oklch(0.55_0.18_145)]"
+                className="flex-1 rounded-full bg-primary"
                 style={{
                   height: `${20 + Math.round(Math.random() * 80)}%`,
                   animation: `waveBar 0.5s ease-in-out ${i * 0.04}s infinite alternate`,
@@ -112,7 +112,7 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
           <button
             type="button"
             onClick={() => setRecording(false)}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-[oklch(0.55_0.03_150)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
             aria-label="Cancelar gravação"
           >
             <X className="w-4 h-4" />
@@ -122,7 +122,7 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
           <button
             type="button"
             onClick={() => setRecording(false)}
-            className="w-9 h-9 rounded-full bg-[oklch(0.48_0.16_145)] flex items-center justify-center text-white hover:bg-[oklch(0.52_0.18_145)] transition-colors"
+            className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors"
             aria-label="Enviar áudio"
           >
             <Send className="w-4 h-4" />
@@ -139,30 +139,31 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
   }
 
   return (
-    <div className="px-4 py-3 bg-[oklch(0.12_0.03_150)] border-t border-[oklch(0.20_0.04_150)] shrink-0">
+    <div className="px-4 py-3 bg-card border-t border-border shrink-0">
       {/* Attach Menu Popup */}
       <div ref={attachRef} className="relative">
         {showAttachMenu && (
-          <div className="absolute bottom-full mb-2 left-0 flex flex-col gap-1 bg-[oklch(0.17_0.04_150)] border border-[oklch(0.24_0.04_150)] rounded-xl p-2 shadow-xl z-10"
+          <div
+            className="absolute bottom-full mb-2 left-0 flex flex-col gap-1 bg-card border border-border rounded-xl p-2 shadow-lg z-10"
             style={{ animation: "popIn 0.12s ease-out both" }}
           >
             {[
-              { icon: <Image className="w-4 h-4" />, label: "Imagem", color: "text-blue-400" },
-              { icon: <Film className="w-4 h-4" />, label: "Vídeo", color: "text-purple-400" },
-              { icon: <Music className="w-4 h-4" />, label: "Áudio", color: "text-green-400" },
-              { icon: <Paperclip className="w-4 h-4" />, label: "Arquivo", color: "text-amber-400" },
+              { icon: <Image className="w-4 h-4" />, label: "Imagem", color: "text-blue-500" },
+              { icon: <Film className="w-4 h-4" />, label: "Vídeo", color: "text-purple-500" },
+              { icon: <Music className="w-4 h-4" />, label: "Áudio", color: "text-green-600" },
+              { icon: <Paperclip className="w-4 h-4" />, label: "Arquivo", color: "text-amber-500" },
             ].map(({ icon, label, color }) => (
               <button
                 key={label}
                 type="button"
                 onClick={() => setShowAttachMenu(false)}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium hover:bg-[oklch(0.22_0.04_150)] transition-colors w-full text-left",
+                  "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium hover:bg-muted transition-colors w-full text-left",
                   color
                 )}
               >
                 {icon}
-                <span className="text-[oklch(0.82_0.02_150)]">{label}</span>
+                <span className="text-foreground">{label}</span>
               </button>
             ))}
           </div>
@@ -174,9 +175,9 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
         {/* Textarea */}
         <div
           className={cn(
-            "flex items-end gap-2 bg-[oklch(0.16_0.04_150)] rounded-2xl px-3 py-2",
-            "border border-[oklch(0.22_0.04_150)]",
-            "focus-within:border-[oklch(0.42_0.12_148)] focus-within:ring-1 focus-within:ring-[oklch(0.42_0.12_148)]/20",
+            "flex items-end gap-2 bg-background rounded-2xl px-3 py-2",
+            "border border-border",
+            "focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20",
             "transition-all"
           )}
         >
@@ -189,9 +190,8 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
             rows={1}
             className={cn(
               "flex-1 bg-transparent text-sm resize-none outline-none py-1",
-              "text-[oklch(0.90_0.02_150)] placeholder:text-[oklch(0.40_0.03_150)]",
-              "leading-relaxed min-h-[28px] max-h-[160px]",
-              "scrollbar-dark"
+              "text-foreground placeholder:text-muted-foreground",
+              "leading-relaxed min-h-[28px] max-h-[160px]"
             )}
           />
         </div>
@@ -203,20 +203,20 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
             <ComposerButton
               icon={<Smile className="w-4 h-4" />}
               label="Emoji"
-              className="text-amber-400/70 hover:text-amber-400"
+              className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
             />
             <ComposerButton
               icon={<Paperclip className="w-4 h-4" />}
               label="Anexar arquivo"
               active={showAttachMenu}
               onClick={() => setShowAttachMenu((v) => !v)}
-              className="text-[oklch(0.55_0.03_150)] hover:text-[oklch(0.75_0.08_148)]"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted"
             />
             <ComposerButton
               icon={<Mic className="w-4 h-4" />}
               label="Gravar áudio"
               onClick={() => setRecording(true)}
-              className="text-[oklch(0.55_0.03_150)] hover:text-green-400"
+              className="text-muted-foreground hover:text-green-600 hover:bg-green-50"
             />
           </div>
 
@@ -226,7 +226,7 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
           <ComposerButton
             icon={<Bot className="w-4 h-4" />}
             label="Resposta do chatbot"
-            className="text-[oklch(0.55_0.12_180)] hover:text-[oklch(0.72_0.18_180)]"
+            className="text-primary/70 hover:text-primary hover:bg-primary/10"
           />
 
           {/* Send */}
@@ -237,8 +237,8 @@ export function MessageComposer({ onSend }: MessageComposerProps) {
             className={cn(
               "ml-1 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200",
               text.trim()
-                ? "bg-[oklch(0.48_0.16_145)] text-white hover:bg-[oklch(0.52_0.18_145)] scale-100 shadow-md shadow-[oklch(0.48_0.16_145)]/30"
-                : "bg-[oklch(0.20_0.04_150)] text-[oklch(0.40_0.03_150)] scale-90"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 scale-100 shadow-sm"
+                : "bg-muted text-muted-foreground scale-90 cursor-not-allowed"
             )}
             aria-label="Enviar mensagem"
           >

@@ -2,11 +2,11 @@
 
 import { cn } from "@/lib/utils"
 import type { Conversation } from "../types/conversation"
-import { MessageCircle, Image, Video, Mic, FileText } from "lucide-react"
+import { Image, Video, Mic, FileText } from "lucide-react"
 
 const STATUS_COLORS: Record<string, string> = {
-  online: "bg-green-400",
-  offline: "bg-zinc-500",
+  online: "bg-green-500",
+  offline: "bg-zinc-400",
   away: "bg-amber-400",
   busy: "bg-red-400",
 }
@@ -66,26 +66,26 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full flex items-start gap-3 px-4 py-3.5 transition-all duration-150 text-left group relative",
+        "w-full flex items-start gap-3 px-4 py-3.5 transition-all duration-150 text-left group relative border-l-2",
         isSelected
-          ? "bg-[oklch(0.22_0.07_148)] border-l-2 border-[oklch(0.55_0.18_145)]"
-          : "border-l-2 border-transparent hover:bg-[oklch(0.16_0.04_150)] hover:border-l-[oklch(0.35_0.10_148)]"
+          ? "bg-primary/10 border-l-primary"
+          : "border-l-transparent hover:bg-muted hover:border-l-primary/30"
       )}
     >
       {/* Avatar */}
       <div className="relative shrink-0 mt-0.5">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-[oklch(0.25_0.06_148)] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
           {contact.avatarUrl ? (
             <img src={contact.avatarUrl} alt={contact.name} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-sm font-semibold text-[oklch(0.75_0.12_148)]">
+            <span className="text-sm font-semibold text-primary">
               {getInitials(contact.name)}
             </span>
           )}
         </div>
         <span
           className={cn(
-            "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[oklch(0.13_0.04_150)]",
+            "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white",
             STATUS_COLORS[contact.onlineStatus]
           )}
         />
@@ -105,22 +105,22 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
           <span
             className={cn(
               "text-sm font-semibold truncate",
-              isSelected ? "text-[oklch(0.95_0.02_150)]" : "text-[oklch(0.88_0.02_150)]"
+              isSelected ? "text-primary" : "text-foreground"
             )}
           >
             {contact.name}
           </span>
-          <span className="text-[10px] shrink-0 text-[oklch(0.50_0.03_150)] tabular-nums">
+          <span className="text-[10px] shrink-0 text-muted-foreground tabular-nums">
             {formatRelativeTime(lastMessageAt)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-1">
-          <p className="text-xs text-[oklch(0.52_0.03_150)] truncate flex items-center">
+          <p className="text-xs text-muted-foreground truncate flex items-center">
             {TYPE_ICON[lastMessageType]}
             {lastMessage}
           </p>
           {unreadCount > 0 && (
-            <span className="shrink-0 min-w-[18px] h-[18px] rounded-full bg-[oklch(0.55_0.18_145)] text-white text-[10px] font-bold flex items-center justify-center px-1">
+            <span className="shrink-0 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}

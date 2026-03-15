@@ -20,7 +20,7 @@ export function ConversationsLayout() {
     // -m-6 counteracts the p-6 padding from AppLayoutContent's <main>
     // height: calc(100vh - 3.5rem) = full viewport minus header (h-14)
     <div
-      className="-m-6 flex overflow-hidden"
+      className="-m-6 flex overflow-hidden bg-background"
       style={{ height: "calc(100vh - 3.5rem)" }}
     >
       <ConversationsPanel
@@ -32,10 +32,7 @@ export function ConversationsLayout() {
       />
 
       {/* Chat Area */}
-      <div
-        className="flex-1 flex flex-col overflow-hidden"
-        style={{ background: "oklch(0.10 0.02 150)" }}
-      >
+      <div className="flex-1 flex flex-col overflow-hidden bg-[oklch(0.95_0.02_150)]">
         {selectedConversation ? (
           <>
             <ConversationHeader conversation={selectedConversation} />

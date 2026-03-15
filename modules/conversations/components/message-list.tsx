@@ -40,10 +40,7 @@ export function MessageList({ messages }: MessageListProps) {
   }
 
   return (
-    <div
-      className="flex-1 overflow-y-auto scrollbar-dark px-5 py-4 space-y-1.5"
-      style={{ background: "oklch(0.10 0.02 150)" }}
-    >
+    <div className="flex-1 overflow-y-auto px-5 py-4 space-y-1.5 bg-[oklch(0.95_0.02_150)]">
       <style>{`
         @keyframes msgIn {
           from { opacity: 0; transform: translateY(6px); }
@@ -53,7 +50,7 @@ export function MessageList({ messages }: MessageListProps) {
 
       {messages.length === 0 && (
         <div className="flex items-center justify-center h-full">
-          <p className="text-xs text-[oklch(0.40_0.03_150)]">Nenhuma mensagem ainda.</p>
+          <p className="text-xs text-muted-foreground">Nenhuma mensagem ainda.</p>
         </div>
       )}
 
