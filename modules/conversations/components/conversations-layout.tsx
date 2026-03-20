@@ -1,19 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { ConversationsPanel } from "./conversations-panel"
 import { ConversationHeader } from "./conversation-header"
 import { MessageList } from "./message-list"
 import { MessageComposer } from "./message-composer"
 import { ConversationEmptyState } from "./conversation-empty-state"
-import { mockConversations } from "../data/mock-conversations"
+import { useConversationsQuery } from "../queries/use-conversations-query"
 import { mockMessagesByConv } from "../data/mock-messages"
 
 export function ConversationsLayout() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
 
-  const selectedConversation = mockConversations.find((c) => c.id === selectedId) ?? null
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useConversationsQuery()
+
+  const conversations = useMemo(
+    () => data?.pages.flatMap((p) => p.data) ?? [],
+    [data],
+  )
+
+  const selectedConversation = conversations.find((c) => c.id === selectedId) ?? null
   const messages = selectedId ? (mockMessagesByConv[selectedId] ?? []) : []
 
   return (
@@ -24,16 +38,23 @@ export function ConversationsLayout() {
       style={{ height: "calc(100vh - 3.5rem)" }}
     >
       <ConversationsPanel
-        conversations={mockConversations}
+        conversations={conversations}
         selectedId={selectedId}
         onSelect={setSelectedId}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onLoadMore={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isLoadingMore={isFetchingNextPage}
       />
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col overflow-hidden bg-[oklch(0.95_0.02_150)]">
-        {selectedConversation ? (
+        {isLoading ? (
+          <ConversationEmptyState />
+        ) : isError ? (
+          <ConversationEmptyState />
+        ) : selectedConversation ? (
           <>
             <ConversationHeader conversation={selectedConversation} />
             <MessageList messages={messages} />

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Search, SlidersHorizontal, Plus, ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Conversation, ConversationStatus } from "../types/conversation"
@@ -21,6 +21,9 @@ interface ConversationsPanelProps {
   onSelect: (id: string) => void
   searchQuery: string
   onSearchChange: (q: string) => void
+  onLoadMore?: () => void
+  hasNextPage?: boolean
+  isLoadingMore?: boolean
 }
 
 export function ConversationsPanel({
@@ -29,9 +32,28 @@ export function ConversationsPanel({
   onSelect,
   searchQuery,
   onSearchChange,
+  onLoadMore,
+  hasNextPage,
+  isLoadingMore,
 }: ConversationsPanelProps) {
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all")
   const [collapsed, setCollapsed] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!onLoadMore || !hasNextPage) return
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) onLoadMore()
+      },
+      { threshold: 0.1 },
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [onLoadMore, hasNextPage])
 
   const filtered = conversations.filter((c) => {
     const matchesStatus = activeFilter === "all" || c.status === activeFilter
@@ -166,14 +188,23 @@ export function ConversationsPanel({
                 <p className="text-xs text-muted-foreground">Nenhuma conversa encontrada</p>
               </div>
             ) : (
-              filtered.map((conv) => (
-                <ConversationItem
-                  key={conv.id}
-                  conversation={conv}
-                  isSelected={conv.id === selectedId}
-                  onClick={() => onSelect(conv.id)}
-                />
-              ))
+              <>
+                {filtered.map((conv) => (
+                  <ConversationItem
+                    key={conv.id}
+                    conversation={conv}
+                    isSelected={conv.id === selectedId}
+                    onClick={() => onSelect(conv.id)}
+                  />
+                ))}
+                {hasNextPage && (
+                  <div ref={sentinelRef} className="py-3 flex justify-center">
+                    {isLoadingMore && (
+                      <span className="text-[10px] text-muted-foreground">Carregando...</span>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </>
