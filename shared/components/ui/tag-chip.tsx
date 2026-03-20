@@ -13,7 +13,7 @@ interface TagChipProps {
 }
 
 export function TagChip({ name, color, selected, onClick, className  }: TagChipProps) {
-  const cfg = TAG_COLOR_MAP[color]
+  const cfg = TAG_COLOR_MAP[color] ?? TAG_COLOR_MAP["blue"]
 
   if (selected !== undefined) {
     return (
