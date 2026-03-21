@@ -298,12 +298,21 @@ export function ConversationsPanel({
       {/* Collapsed state: avatar rail */}
       {collapsed && (
         <div
+          ref={scrollContainerRef}
           className="flex-1 flex flex-col items-center gap-1 py-3 overflow-y-auto [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none" }}
         >
+          {hasPreviousPage && (
+            <div ref={topSentinelRef} className="w-full py-1 flex justify-center">
+              {isLoadingPrevious && (
+                <span className="text-[10px] text-muted-foreground">...</span>
+              )}
+            </div>
+          )}
           {conversations.map((c) => (
             <button
               key={c.id}
+              data-conv-id={c.id}
               type="button"
               title={c.contact.name}
               onClick={() => {
@@ -325,6 +334,13 @@ export function ConversationsPanel({
               )}
             </button>
           ))}
+          {hasNextPage && (
+            <div ref={bottomSentinelRef} className="w-full py-1 flex justify-center">
+              {isLoadingMore && (
+                <span className="text-[10px] text-muted-foreground">...</span>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
