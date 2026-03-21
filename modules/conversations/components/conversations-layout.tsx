@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useMemo, useEffect, useRef } from "react"
 import { ConversationsPanel } from "./conversations-panel"
 import { ConversationHeader } from "./conversation-header"
 import { MessageList } from "./message-list"
@@ -9,23 +8,17 @@ import { ConversationEmptyState } from "./conversation-empty-state"
 import { ConversationsPanelSkeleton } from "./conversations-panel-skeleton"
 import { ConversationHeaderSkeleton } from "./conversation-header-skeleton"
 import { MessageListSkeleton } from "./message-list-skeleton"
-import { useQueryClient } from "@tanstack/react-query"
-import { useConversationsQuery, conversationsQueryKey } from "../queries/use-conversations-query"
-import { mockMessagesByConv } from "../data/mock-messages"
+import { useConversationsLayout } from "../hooks/use-conversations-layout"
 
 export function ConversationsLayout() {
-  const queryClient = useQueryClient()
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-
-  useEffect(() => {
-    return () => {
-      queryClient.removeQueries({ queryKey: conversationsQueryKey })
-    }
-  }, [queryClient])
-
   const {
-    data,
+    conversations,
+    selectedConversation,
+    messages,
+    selectedId,
+    setSelectedId,
+    searchQuery,
+    setSearchQuery,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -34,19 +27,7 @@ export function ConversationsLayout() {
     isFetchingPreviousPage,
     isLoading,
     isError,
-  } = useConversationsQuery()
-
-  const conversations = useMemo(
-    () => data?.pages.flatMap((p) => p.data) ?? [],
-    [data],
-  )
-
-  const selectedConversationRef = useRef<typeof conversations[number] | null>(null)
-  const found = conversations.find((c) => c.id === selectedId) ?? null
-  if (found) selectedConversationRef.current = found
-  if (!selectedId) selectedConversationRef.current = null
-  const selectedConversation = selectedConversationRef.current
-  const messages = selectedId ? (mockMessagesByConv[selectedId] ?? []) : []
+  } = useConversationsLayout()
 
   return (
     // -m-6 counteracts the p-6 padding from AppLayoutContent's <main>

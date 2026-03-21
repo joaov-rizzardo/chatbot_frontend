@@ -1,20 +1,11 @@
 "use client"
 
-import { useState, useRef, useCallback, useLayoutEffect } from "react"
 import { Search, SlidersHorizontal, Plus, ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Conversation, ConversationStatus } from "../types/conversation"
+import type { Conversation } from "../types/conversation"
 import { ConversationItem } from "./conversation-item"
 import { ContactAvatar } from "@/shared/components/ui/contact-avatar"
-
-type FilterTab = "all" | ConversationStatus
-
-const FILTER_TABS: { key: FilterTab; label: string }[] = [
-  { key: "all", label: "Todas" },
-  { key: "open", label: "Abertas" },
-  { key: "pending", label: "Pendentes" },
-  { key: "resolved", label: "Resolvidas" },
-]
+import { useConversationsPanel, FILTER_TABS } from "../hooks/use-conversations-panel"
 
 interface ConversationsPanelProps {
   conversations: Conversation[]
@@ -43,106 +34,26 @@ export function ConversationsPanel({
   hasPreviousPage,
   isLoadingPrevious,
 }: ConversationsPanelProps) {
-  const [activeFilter, setActiveFilter] = useState<FilterTab>("all")
-  const [collapsed, setCollapsed] = useState(false)
-
-  // Keep stable refs so observers always call the latest callbacks
-  // without needing them as dependencies (avoids observer reconnect storms).
-  const onLoadMoreRef = useRef(onLoadMore)
-  const onLoadPreviousRef = useRef(onLoadPrevious)
-  const isLoadingMoreRef = useRef(isLoadingMore)
-  const isLoadingPreviousRef = useRef(isLoadingPrevious)
-  onLoadMoreRef.current = onLoadMore
-  onLoadPreviousRef.current = onLoadPrevious
-  isLoadingMoreRef.current = isLoadingMore
-  isLoadingPreviousRef.current = isLoadingPrevious
-
-  // Scroll position restoration when previous page prepends.
-  // We save the pivot element's id + offsetTop + scrollTop before the DOM
-  // update so we can recompute the correct scrollTop after prepend, bypassing
-  // the browser's suppression of CSS scroll anchoring during fast scrolling.
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const pivotRef = useRef<{ id: string; prevOffsetTop: number; prevScrollTop: number } | null>(null)
-
-  // Snapshot: fires when isLoadingPrevious becomes true, before conversations change.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useLayoutEffect(() => {
-    if (!isLoadingPrevious || pivotRef.current !== null) return
-    const container = scrollContainerRef.current
-    if (!container) return
-    const firstId = filtered[0]?.id
-    if (!firstId) return
-    const el = container.querySelector(`[data-conv-id="${firstId}"]`)
-    pivotRef.current = {
-      id: firstId,
-      prevOffsetTop: el ? (el as HTMLElement).offsetTop : 0,
-      prevScrollTop: container.scrollTop,
-    }
-  }, [isLoadingPrevious])
-
-  // Restore: fires after conversations update (page prepended), before paint.
-  useLayoutEffect(() => {
-    if (!pivotRef.current) return
-    const container = scrollContainerRef.current
-    if (!container) return
-    const el = container.querySelector(`[data-conv-id="${pivotRef.current.id}"]`)
-    if (el) {
-      const delta = (el as HTMLElement).offsetTop - pivotRef.current.prevOffsetTop
-      container.scrollTop = pivotRef.current.prevScrollTop + delta
-    }
-    pivotRef.current = null
-  }, [conversations])
-
-  const bottomObserverRef = useRef<IntersectionObserver | null>(null)
-  const topObserverRef = useRef<IntersectionObserver | null>(null)
-
-  const bottomSentinelRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      bottomObserverRef.current?.disconnect()
-      bottomObserverRef.current = null
-      if (!node || !hasNextPage) return
-      bottomObserverRef.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && !isLoadingMoreRef.current) {
-            onLoadMoreRef.current?.()
-          }
-        },
-        { threshold: 0.1 },
-      )
-      bottomObserverRef.current.observe(node)
-    },
-    [hasNextPage],
-  )
-
-  const topSentinelRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      topObserverRef.current?.disconnect()
-      topObserverRef.current = null
-      if (!node || !hasPreviousPage) return
-      topObserverRef.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && !isLoadingPreviousRef.current) {
-            onLoadPreviousRef.current?.()
-          }
-        },
-        { threshold: 0.1 },
-      )
-      topObserverRef.current.observe(node)
-    },
-    [hasPreviousPage],
-  )
-
-  const filtered = conversations.filter((c) => {
-    const matchesStatus = activeFilter === "all" || c.status === activeFilter
-    const matchesSearch =
-      !searchQuery ||
-      c.contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.contact.phone.includes(searchQuery) ||
-      c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
+  const {
+    activeFilter,
+    setActiveFilter,
+    collapsed,
+    setCollapsed,
+    scrollContainerRef,
+    topSentinelRef,
+    bottomSentinelRef,
+    filtered,
+    totalUnread,
+  } = useConversationsPanel({
+    conversations,
+    searchQuery,
+    onLoadMore,
+    hasNextPage,
+    isLoadingMore,
+    onLoadPrevious,
+    hasPreviousPage,
+    isLoadingPrevious,
   })
-
-  const totalUnread = conversations.reduce((s, c) => s + c.unreadCount, 0)
 
   return (
     <div
@@ -186,9 +97,10 @@ export function ConversationsPanel({
         </div>
       </div>
 
+      {/* Expanded state */}
       {!collapsed && (
         <>
-          {/* Search */}
+          {/* Search & Filters */}
           <div className="px-3 pt-3 pb-2 bg-card border-b border-border">
             <div className="flex gap-2">
               <div className="relative flex-1">
