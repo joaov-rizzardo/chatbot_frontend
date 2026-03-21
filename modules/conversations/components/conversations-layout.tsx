@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { ConversationsPanel } from "./conversations-panel"
 import { ConversationHeader } from "./conversation-header"
 import { MessageList } from "./message-list"
@@ -41,7 +41,11 @@ export function ConversationsLayout() {
     [data],
   )
 
-  const selectedConversation = conversations.find((c) => c.id === selectedId) ?? null
+  const selectedConversationRef = useRef<typeof conversations[number] | null>(null)
+  const found = conversations.find((c) => c.id === selectedId) ?? null
+  if (found) selectedConversationRef.current = found
+  if (!selectedId) selectedConversationRef.current = null
+  const selectedConversation = selectedConversationRef.current
   const messages = selectedId ? (mockMessagesByConv[selectedId] ?? []) : []
 
   return (
