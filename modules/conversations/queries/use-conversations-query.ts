@@ -44,16 +44,10 @@ export function useConversationsQuery() {
       const idx = cursorChain.current.indexOf(firstPageParam)
       return idx > 0 ? cursorChain.current[idx - 1] : undefined
     },
-    // Data is considered fresh for 1 minute while the user is actively on the
-    // page with SSE connected. After that, refetch triggers (mount/focus/reconnect)
-    // will catch up on any missed events from an absence.
-    staleTime: 60_000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
     refetchInterval: false,
-    // Keep only 2 pages in memory. When the user scrolls past the window,
-    // evicted pages are re-fetched via fetchPreviousPage / fetchNextPage.
     maxPages: 2,
   })
 }

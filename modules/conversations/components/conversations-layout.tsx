@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { ConversationsPanel } from "./conversations-panel"
 import { ConversationHeader } from "./conversation-header"
 import { MessageList } from "./message-list"
@@ -9,12 +9,20 @@ import { ConversationEmptyState } from "./conversation-empty-state"
 import { ConversationsPanelSkeleton } from "./conversations-panel-skeleton"
 import { ConversationHeaderSkeleton } from "./conversation-header-skeleton"
 import { MessageListSkeleton } from "./message-list-skeleton"
-import { useConversationsQuery } from "../queries/use-conversations-query"
+import { useQueryClient } from "@tanstack/react-query"
+import { useConversationsQuery, conversationsQueryKey } from "../queries/use-conversations-query"
 import { mockMessagesByConv } from "../data/mock-messages"
 
 export function ConversationsLayout() {
+  const queryClient = useQueryClient()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    return () => {
+      queryClient.removeQueries({ queryKey: conversationsQueryKey })
+    }
+  }, [queryClient])
 
   const {
     data,
