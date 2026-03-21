@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef, useCallback, useLayoutEffect } from "react"
 import { Search, SlidersHorizontal, Plus, ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Conversation, ConversationStatus } from "../types/conversation"
 import { ConversationItem } from "./conversation-item"
+import { ContactAvatar } from "@/shared/components/ui/contact-avatar"
 
 type FilterTab = "all" | ConversationStatus
 
@@ -24,6 +25,9 @@ interface ConversationsPanelProps {
   onLoadMore?: () => void
   hasNextPage?: boolean
   isLoadingMore?: boolean
+  onLoadPrevious?: () => void
+  hasPreviousPage?: boolean
+  isLoadingPrevious?: boolean
 }
 
 export function ConversationsPanel({
@@ -35,25 +39,98 @@ export function ConversationsPanel({
   onLoadMore,
   hasNextPage,
   isLoadingMore,
+  onLoadPrevious,
+  hasPreviousPage,
+  isLoadingPrevious,
 }: ConversationsPanelProps) {
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all")
   const [collapsed, setCollapsed] = useState(false)
-  const sentinelRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!onLoadMore || !hasNextPage) return
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
+  // Keep stable refs so observers always call the latest callbacks
+  // without needing them as dependencies (avoids observer reconnect storms).
+  const onLoadMoreRef = useRef(onLoadMore)
+  const onLoadPreviousRef = useRef(onLoadPrevious)
+  const isLoadingMoreRef = useRef(isLoadingMore)
+  const isLoadingPreviousRef = useRef(isLoadingPrevious)
+  onLoadMoreRef.current = onLoadMore
+  onLoadPreviousRef.current = onLoadPrevious
+  isLoadingMoreRef.current = isLoadingMore
+  isLoadingPreviousRef.current = isLoadingPrevious
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) onLoadMore()
-      },
-      { threshold: 0.1 },
-    )
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [onLoadMore, hasNextPage])
+  // Scroll position restoration when previous page prepends.
+  // We save the pivot element's id + offsetTop + scrollTop before the DOM
+  // update so we can recompute the correct scrollTop after prepend, bypassing
+  // the browser's suppression of CSS scroll anchoring during fast scrolling.
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const pivotRef = useRef<{ id: string; prevOffsetTop: number; prevScrollTop: number } | null>(null)
+
+  // Snapshot: fires when isLoadingPrevious becomes true, before conversations change.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    if (!isLoadingPrevious || pivotRef.current !== null) return
+    const container = scrollContainerRef.current
+    if (!container) return
+    const firstId = filtered[0]?.id
+    if (!firstId) return
+    const el = container.querySelector(`[data-conv-id="${firstId}"]`)
+    pivotRef.current = {
+      id: firstId,
+      prevOffsetTop: el ? (el as HTMLElement).offsetTop : 0,
+      prevScrollTop: container.scrollTop,
+    }
+  }, [isLoadingPrevious])
+
+  // Restore: fires after conversations update (page prepended), before paint.
+  useLayoutEffect(() => {
+    if (!pivotRef.current) return
+    const container = scrollContainerRef.current
+    if (!container) return
+    const el = container.querySelector(`[data-conv-id="${pivotRef.current.id}"]`)
+    if (el) {
+      const delta = (el as HTMLElement).offsetTop - pivotRef.current.prevOffsetTop
+      container.scrollTop = pivotRef.current.prevScrollTop + delta
+    }
+    pivotRef.current = null
+  }, [conversations])
+
+  const bottomObserverRef = useRef<IntersectionObserver | null>(null)
+  const topObserverRef = useRef<IntersectionObserver | null>(null)
+
+  const bottomSentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      bottomObserverRef.current?.disconnect()
+      bottomObserverRef.current = null
+      if (!node || !hasNextPage) return
+      bottomObserverRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !isLoadingMoreRef.current) {
+            onLoadMoreRef.current?.()
+          }
+        },
+        { threshold: 0.1 },
+      )
+      bottomObserverRef.current.observe(node)
+    },
+    [hasNextPage],
+  )
+
+  const topSentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      topObserverRef.current?.disconnect()
+      topObserverRef.current = null
+      if (!node || !hasPreviousPage) return
+      topObserverRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !isLoadingPreviousRef.current) {
+            onLoadPreviousRef.current?.()
+          }
+        },
+        { threshold: 0.1 },
+      )
+      topObserverRef.current.observe(node)
+    },
+    [hasPreviousPage],
+  )
 
   const filtered = conversations.filter((c) => {
     const matchesStatus = activeFilter === "all" || c.status === activeFilter
@@ -181,7 +258,14 @@ export function ConversationsPanel({
           </div>
 
           {/* Conversation List */}
-          <div className="flex-1 overflow-y-auto">
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
+            {hasPreviousPage && (
+              <div ref={topSentinelRef} className="py-2 flex justify-center">
+                {isLoadingPrevious && (
+                  <span className="text-[10px] text-muted-foreground">Carregando...</span>
+                )}
+              </div>
+            )}
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 gap-2">
                 <Search className="w-6 h-6 text-muted-foreground/40" />
@@ -190,15 +274,16 @@ export function ConversationsPanel({
             ) : (
               <>
                 {filtered.map((conv) => (
-                  <ConversationItem
-                    key={conv.id}
-                    conversation={conv}
-                    isSelected={conv.id === selectedId}
-                    onClick={() => onSelect(conv.id)}
-                  />
+                  <div key={conv.id} data-conv-id={conv.id}>
+                    <ConversationItem
+                      conversation={conv}
+                      isSelected={conv.id === selectedId}
+                      onClick={() => onSelect(conv.id)}
+                    />
+                  </div>
                 ))}
                 {hasNextPage && (
-                  <div ref={sentinelRef} className="py-3 flex justify-center">
+                  <div ref={bottomSentinelRef} className="py-3 flex justify-center">
                     {isLoadingMore && (
                       <span className="text-[10px] text-muted-foreground">Carregando...</span>
                     )}
@@ -210,36 +295,36 @@ export function ConversationsPanel({
         </>
       )}
 
-      {/* Collapsed state: just avatars */}
+      {/* Collapsed state: avatar rail */}
       {collapsed && (
-        <div className="flex-1 overflow-y-auto py-2 flex flex-col items-center gap-2">
-          {conversations
-            .filter((c) => c.unreadCount > 0)
-            .slice(0, 6)
-            .map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setCollapsed(false)
-                  onSelect(c.id)
-                }}
-                className="relative w-9 h-9 rounded-full overflow-hidden hover:ring-2 hover:ring-primary transition-all"
-              >
-                {c.contact.avatarUrl ? (
-                  <img src={c.contact.avatarUrl} alt={c.contact.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                    {c.contact.name[0]}
-                  </div>
-                )}
-                {c.unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground text-[8px] font-bold flex items-center justify-center">
-                    {c.unreadCount}
-                  </span>
-                )}
-              </button>
-            ))}
+        <div
+          className="flex-1 flex flex-col items-center gap-1 py-3 overflow-y-auto [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {conversations.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              title={c.contact.name}
+              onClick={() => {
+                setCollapsed(false)
+                onSelect(c.id)
+              }}
+              className={cn(
+                "relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-150 shrink-0",
+                c.id === selectedId
+                  ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                  : "hover:ring-2 hover:ring-primary/50 hover:ring-offset-2 hover:ring-offset-background"
+              )}
+            >
+              <ContactAvatar name={c.contact.name} avatarUrl={c.contact.avatarUrl} className="w-9 h-9 text-[11px]" />
+              {c.unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] rounded-full bg-primary text-primary-foreground text-[8px] font-bold flex items-center justify-center px-0.5 shadow-sm ring-1 ring-background">
+                  {c.unreadCount > 9 ? "9+" : c.unreadCount}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       )}
     </div>

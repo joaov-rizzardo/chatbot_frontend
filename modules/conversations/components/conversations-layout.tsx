@@ -21,6 +21,9 @@ export function ConversationsLayout() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
     isLoading,
     isError,
   } = useConversationsQuery()
@@ -52,6 +55,9 @@ export function ConversationsLayout() {
           onLoadMore={fetchNextPage}
           hasNextPage={hasNextPage}
           isLoadingMore={isFetchingNextPage}
+          onLoadPrevious={fetchPreviousPage}
+          hasPreviousPage={hasPreviousPage}
+          isLoadingPrevious={isFetchingPreviousPage}
         />
       )}
 
