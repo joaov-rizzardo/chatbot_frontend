@@ -1,6 +1,7 @@
 "use client"
 
 import type { CSSProperties } from "react"
+import { cn } from "@/lib/utils"
 
 const AVATAR_GRADIENTS: Record<string, [string, string]> = {
   A: ["#F472B6", "#EC4899"],
@@ -37,20 +38,44 @@ function getAvatarStyle(name: string): CSSProperties {
   return { background: `linear-gradient(135deg, ${from}, ${to})` }
 }
 
-export function ContactAvatar({ name }: { name: string }) {
-  const initials = name
+function getInitials(name: string): string {
+  return name
     .split(" ")
     .slice(0, 2)
     .map((n) => n[0])
     .join("")
     .toUpperCase()
+}
+
+interface ContactAvatarProps {
+  name: string
+  avatarUrl?: string
+  className?: string
+}
+
+export function ContactAvatar({ name, avatarUrl, className }: ContactAvatarProps) {
+  if (avatarUrl) {
+    return (
+      <div
+        className={cn(
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden select-none shadow-sm ring-2 ring-white/20 dark:ring-black/20",
+          className
+        )}
+      >
+        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+      </div>
+    )
+  }
 
   return (
     <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white select-none shadow-sm ring-2 ring-white/20 dark:ring-black/20"
+      className={cn(
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white select-none shadow-sm ring-2 ring-white/20 dark:ring-black/20",
+        className
+      )}
       style={getAvatarStyle(name)}
     >
-      {initials}
+      {getInitials(name)}
     </div>
   )
 }

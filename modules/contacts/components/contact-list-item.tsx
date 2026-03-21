@@ -11,7 +11,7 @@ import {
 import { TagChip } from "@/shared/components/ui/tag-chip"
 import { formatPhoneNumber } from "@/lib/format-phone-number"
 import type { Contact } from "../types/contact"
-import { ContactAvatar } from "./contact-avatar"
+import { ContactAvatar } from "@/shared/components/ui/contact-avatar"
 
 interface ContactListItemProps {
   contact: Contact

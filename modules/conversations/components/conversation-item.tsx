@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import type { Conversation } from "../types/conversation"
 import { Image, Video, Mic, FileText } from "lucide-react"
+import { ContactAvatar } from "@/shared/components/ui/contact-avatar"
 
 const STATUS_COLORS: Record<string, string> = {
   online: "bg-green-500",
@@ -43,15 +44,6 @@ function formatRelativeTime(isoString: string): string {
   return `${days}d`
 }
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-}
-
 interface ConversationItemProps {
   conversation: Conversation
   isSelected: boolean
@@ -74,15 +66,7 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
     >
       {/* Avatar */}
       <div className="relative shrink-0 mt-0.5">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
-          {contact.avatarUrl ? (
-            <img src={contact.avatarUrl} alt={contact.name} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-sm font-semibold text-primary">
-              {getInitials(contact.name)}
-            </span>
-          )}
-        </div>
+        <ContactAvatar name={contact.name} avatarUrl={contact.avatarUrl} />
         <span
           className={cn(
             "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white",
