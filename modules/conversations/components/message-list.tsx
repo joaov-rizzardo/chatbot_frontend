@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useRef, useCallback } from "react"
 import type { Message } from "../types/message"
 import { MessageBubble } from "./message-bubble"
 import { MessageDateSeparator } from "./message-date-separator"
 import { Loader2 } from "lucide-react"
+import { useMessageList } from "../hooks/use-message-list"
 
 function getDateLabel(isoString: string): string {
   const date = new Date(isoString)
@@ -25,56 +25,12 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, onLoadOlder, hasOlderMessages, isLoadingOlder }: MessageListProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const topSentinelRef = useRef<HTMLDivElement>(null)
-  // Track the scroll height before loading older messages so we can restore position.
-  const prevScrollHeightRef = useRef<number>(0)
-  const isInitialLoadRef = useRef(true)
-
-  // Scroll to bottom on initial load.
-  useEffect(() => {
-    if (messages.length > 0 && isInitialLoadRef.current) {
-      bottomRef.current?.scrollIntoView({ behavior: "instant" })
-      isInitialLoadRef.current = false
-    }
-  }, [messages.length])
-
-  // After loading older messages, restore the scroll position so the view
-  // doesn't jump to the top.
-  useEffect(() => {
-    if (!isLoadingOlder && prevScrollHeightRef.current > 0 && containerRef.current) {
-      const newScrollHeight = containerRef.current.scrollHeight
-      containerRef.current.scrollTop = newScrollHeight - prevScrollHeightRef.current
-      prevScrollHeightRef.current = 0
-    }
-  }, [isLoadingOlder, messages.length])
-
-  // IntersectionObserver: trigger loading older messages when the top sentinel
-  // enters the viewport.
-  const handleTopSentinel = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [entry] = entries
-      if (entry.isIntersecting && hasOlderMessages && !isLoadingOlder) {
-        if (containerRef.current) {
-          prevScrollHeightRef.current = containerRef.current.scrollHeight
-        }
-        onLoadOlder()
-      }
-    },
-    [hasOlderMessages, isLoadingOlder, onLoadOlder],
-  )
-
-  useEffect(() => {
-    const sentinel = topSentinelRef.current
-    if (!sentinel) return
-    const observer = new IntersectionObserver(handleTopSentinel, {
-      root: containerRef.current,
-      threshold: 0.1,
-    })
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [handleTopSentinel])
+  const { containerRef, bottomRef, topSentinelRef } = useMessageList({
+    messagesLength: messages.length,
+    hasOlderMessages,
+    isLoadingOlder,
+    onLoadOlder,
+  })
 
   // Group messages by date
   const grouped: { date: string; messages: Message[] }[] = []
@@ -100,7 +56,6 @@ export function MessageList({ messages, onLoadOlder, hasOlderMessages, isLoading
       {/* Top sentinel — triggers loading older messages on scroll up */}
       <div ref={topSentinelRef} className="h-1" />
 
-      {/* Older messages loader */}
       {isLoadingOlder && (
         <div className="flex justify-center py-2">
           <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />

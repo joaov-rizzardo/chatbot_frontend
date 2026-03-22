@@ -4,17 +4,10 @@ import { MessageReplyPreview } from "./message-reply-preview"
 import { MessageImage } from "./message-image"
 import { MessageVideo } from "./message-video"
 import { MessageAudio } from "./message-audio"
-import { Check, CheckCheck } from "lucide-react"
+import { MessageBubbleStatus } from "./message-bubble-status"
 
 function formatTime(isoString: string): string {
   return new Date(isoString).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-}
-
-function StatusIcon({ status }: { status: Message["status"] }) {
-  if (status === "sent") return <Check className="w-3 h-3 text-white/60" />
-  if (status === "delivered") return <CheckCheck className="w-3 h-3 text-white/70" />
-  if (status === "read") return <CheckCheck className="w-3 h-3 text-sky-200" />
-  return null
 }
 
 interface MessageBubbleProps {
@@ -56,12 +49,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           isMedia && "px-2 py-2"
         )}
       >
-        {/* Reply preview */}
         {message.replyTo && (
           <MessageReplyPreview reply={message.replyTo} isOutgoing={isOutgoing} />
         )}
 
-        {/* Content */}
         {message.type === "text" && message.content && (
           <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
             {message.content}
@@ -105,7 +96,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           >
             {formatTime(message.sentAt)}
           </span>
-          {isOutgoing && <StatusIcon status={message.status} />}
+          {isOutgoing && <MessageBubbleStatus status={message.status} />}
         </div>
       </div>
     </div>
