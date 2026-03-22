@@ -7,8 +7,6 @@ import {
   SlidersHorizontal,
   UserPlus,
   Upload,
-  ChevronLeft,
-  ChevronRight,
   Users,
   Tag,
   Zap,
@@ -32,6 +30,7 @@ import { useCreateContactDialog } from "../hooks/use-create-contact-dialog"
 import { useDeleteContactDialog } from "../hooks/use-delete-contact-dialog"
 import { useEditContactDialog } from "../hooks/use-edit-contact-dialog"
 import { ContactListItemSkeleton } from "./contact-list-item-skeleton"
+import { ContactsPagination } from "./contacts-pagination"
 import { useContactsQuery } from "../queries/use-contacts-query"
 import type { Contact } from "../types/contact"
 
@@ -331,58 +330,15 @@ export function ContactsList() {
 
       {/* Pagination */}
       {filtered.length > 0 && (
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <p className="text-xs text-muted-foreground">
-            {rangeStart}–{rangeEnd} de {filtered.length} contato{filtered.length !== 1 ? "s" : ""}
-            {filtered.length < tabCounts[activeTab] && (
-              <span className="text-muted-foreground/50">
-                {" "}
-                (filtrado de {tabCounts[activeTab]})
-              </span>
-            )}
-          </p>
-
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={safePage === 1}
-              aria-label="Página anterior"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-            </Button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <Button
-                key={p}
-                variant={safePage === p ? "default" : "ghost"}
-                size="icon"
-                className={cn(
-                  "h-8 w-8 text-xs font-medium",
-                  safePage === p && "pointer-events-none"
-                )}
-                onClick={() => setPage(p)}
-                aria-label={`Página ${p}`}
-                aria-current={safePage === p ? "page" : undefined}
-              >
-                {p}
-              </Button>
-            ))}
-
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={safePage === totalPages}
-              aria-label="Próxima página"
-            >
-              <ChevronRight className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        </div>
+        <ContactsPagination
+          page={safePage}
+          totalPages={totalPages}
+          rangeStart={rangeStart}
+          rangeEnd={rangeEnd}
+          totalFiltered={filtered.length}
+          totalInTab={tabCounts[activeTab]}
+          onPageChange={setPage}
+        />
       )}
     </div>
   )
