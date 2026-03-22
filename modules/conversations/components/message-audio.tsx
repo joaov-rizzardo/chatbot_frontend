@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Play, Pause } from "lucide-react"
+import { Play, Pause, Download, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { clientFetch } from "@/lib/client-fetch"
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60)
@@ -26,11 +27,14 @@ interface MessageAudioProps {
   duration?: number
   isOutgoing: boolean
   mediaUrl?: string
+  messageId?: string
 }
 
-export function MessageAudio({ duration = 30, isOutgoing, mediaUrl }: MessageAudioProps) {
+export function MessageAudio({ duration = 30, isOutgoing, mediaUrl, messageId }: MessageAudioProps) {
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [resolvedUrl, setResolvedUrl] = useState<string | undefined>(mediaUrl)
+  const [isDownloading, setIsDownloading] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const waveform = generateWaveform(duration)
 
@@ -54,30 +58,65 @@ export function MessageAudio({ duration = 30, isOutgoing, mediaUrl }: MessageAud
     setProgress(0)
   }
 
+  const handleDownload = async () => {
+    if (!messageId || isDownloading) return
+    setIsDownloading(true)
+    try {
+      const res = await clientFetch(`/api/message/${messageId}/media`)
+      if (!res.ok) throw new Error("Falha ao baixar áudio")
+      const data = await res.json()
+      if (data?.media?.url) {
+        setResolvedUrl(data.media.url)
+      }
+    } catch {
+      // silently fail — button remains available to retry
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
   const playedCount = Math.round(progress * waveform.length)
+
+  const buttonBase = cn(
+    "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all",
+    isOutgoing
+      ? "bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground"
+      : "bg-primary hover:bg-primary/90 text-primary-foreground"
+  )
 
   return (
     <div className="flex items-center gap-3 w-[240px]">
-      {/* Play/Pause */}
-      <button
-        type="button"
-        onClick={mediaUrl ? toggle : undefined}
-        className={cn(
-          "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all",
-          isOutgoing
-            ? "bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground"
-            : "bg-primary hover:bg-primary/90 text-primary-foreground"
-        )}
-        aria-label={playing ? "Pausar" : "Reproduzir áudio"}
-      >
-        {playing
-          ? <Pause className="w-4 h-4" fill="currentColor" />
-          : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />
-        }
-      </button>
+      {resolvedUrl ? (
+        // Media available — play/pause button
+        <button
+          type="button"
+          onClick={toggle}
+          className={buttonBase}
+          aria-label={playing ? "Pausar" : "Reproduzir áudio"}
+        >
+          {playing
+            ? <Pause className="w-4 h-4" fill="currentColor" />
+            : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />
+          }
+        </button>
+      ) : (
+        // No media yet — download button
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className={cn(buttonBase, "disabled:opacity-60 disabled:cursor-not-allowed")}
+          aria-label="Baixar áudio"
+        >
+          {isDownloading
+            ? <Loader2 className="w-4 h-4 animate-spin" />
+            : <Download className="w-4 h-4" />
+          }
+        </button>
+      )}
 
       {/* Waveform */}
-      <div className="flex-1 flex items-center gap-[2px] h-8">
+      <div className={cn("flex-1 flex items-center gap-[2px] h-8", !resolvedUrl && "opacity-40")}>
         {waveform.map((height, i) => (
           <div
             key={i}
@@ -106,10 +145,10 @@ export function MessageAudio({ duration = 30, isOutgoing, mediaUrl }: MessageAud
         {formatDuration(duration)}
       </span>
 
-      {mediaUrl && (
+      {resolvedUrl && (
         <audio
           ref={audioRef}
-          src={mediaUrl}
+          src={resolvedUrl}
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
           preload="metadata"

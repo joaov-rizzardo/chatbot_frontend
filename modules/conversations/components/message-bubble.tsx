@@ -69,7 +69,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         )}
         {message.type === "image" && (
           <MessageImage
-            src={message.mediaUrl ?? ""}
+            src={message.mediaUrl}
+            thumbnailUrl={message.thumbnailUrl}
+            messageId={message.id}
             caption={message.caption}
             isOutgoing={isOutgoing}
           />
@@ -78,6 +80,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           <MessageVideo
             thumbnailUrl={message.thumbnailUrl}
             mediaUrl={message.mediaUrl}
+            messageId={message.id}
             caption={message.caption}
             duration={message.duration}
             isOutgoing={isOutgoing}
@@ -88,6 +91,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             duration={message.duration}
             isOutgoing={isOutgoing}
             mediaUrl={message.mediaUrl}
+            messageId={message.id}
           />
         )}
 

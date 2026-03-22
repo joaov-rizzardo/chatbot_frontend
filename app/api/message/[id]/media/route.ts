@@ -2,20 +2,11 @@ import { backendCall } from "@/lib/backend-call"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const { searchParams } = request.nextUrl
-  const cursor = searchParams.get("cursor")
-  const limit = searchParams.get("limit")
-
-  const qs = new URLSearchParams()
-  if (cursor) qs.set("cursor", cursor)
-  if (limit) qs.set("limit", limit)
-  const query = qs.toString()
-
-  const response = await backendCall(`/message/conversation/${id}${query ? `?${query}` : ""}`)
+  const response = await backendCall(`/message/${id}/media`)
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
     return NextResponse.json(body, { status: response.status })

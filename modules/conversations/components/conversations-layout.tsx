@@ -27,6 +27,10 @@ export function ConversationsLayout() {
     isFetchingPreviousPage,
     isLoading,
     isError,
+    isLoadingMessages,
+    fetchOlderMessages,
+    hasOlderMessages,
+    isFetchingOlderMessages,
   } = useConversationsLayout()
 
   return (
@@ -66,7 +70,17 @@ export function ConversationsLayout() {
         ) : selectedConversation ? (
           <>
             <ConversationHeader conversation={selectedConversation} />
-            <MessageList messages={messages} />
+            {isLoadingMessages ? (
+              <MessageListSkeleton />
+            ) : (
+              <MessageList
+                key={selectedId}
+                messages={messages}
+                onLoadOlder={fetchOlderMessages}
+                hasOlderMessages={hasOlderMessages ?? false}
+                isLoadingOlder={isFetchingOlderMessages}
+              />
+            )}
             <MessageComposer />
           </>
         ) : (
