@@ -32,7 +32,6 @@ function mapConversation(raw: RawBackendConversation): Conversation {
       id: raw.contact.id,
       name: contactName,
       phone: raw.contact.phoneNumber,
-      onlineStatus: "offline",
     },
     lastMessage: raw.lastMessage?.content ?? "",
     lastMessageAt: raw.lastMessageAt ?? raw.createdAt,

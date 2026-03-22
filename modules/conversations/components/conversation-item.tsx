@@ -5,13 +5,6 @@ import type { Conversation } from "../types/conversation"
 import { Image, Video, Mic, FileText } from "lucide-react"
 import { ContactAvatar } from "@/shared/components/ui/contact-avatar"
 
-const STATUS_COLORS: Record<string, string> = {
-  online: "bg-green-500",
-  offline: "bg-zinc-400",
-  away: "bg-amber-400",
-  busy: "bg-red-400",
-}
-
 const TYPE_ICON: Record<string, React.ReactNode> = {
   image: <Image className="w-3 h-3 inline mr-0.5" />,
   video: <Video className="w-3 h-3 inline mr-0.5" />,
@@ -53,14 +46,8 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
       )}
     >
       {/* Avatar */}
-      <div className="relative shrink-0 mt-0.5">
+      <div className="shrink-0 mt-0.5">
         <ContactAvatar name={contact.name} avatarUrl={contact.avatarUrl} />
-        <span
-          className={cn(
-            "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white",
-            STATUS_COLORS[contact.onlineStatus]
-          )}
-        />
       </div>
 
       {/* Content */}

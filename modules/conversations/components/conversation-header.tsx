@@ -4,20 +4,6 @@ import { Search, Archive, MoreVertical, Phone, Tag, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Conversation } from "../types/conversation"
 
-const STATUS_LABEL: Record<string, string> = {
-  online: "Online",
-  offline: "Offline",
-  away: "Ausente",
-  busy: "Ocupado",
-}
-
-const STATUS_DOT: Record<string, string> = {
-  online: "bg-green-500",
-  offline: "bg-zinc-400",
-  away: "bg-amber-400",
-  busy: "bg-red-400",
-}
-
 const CONV_STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   open: { label: "Aberta", cls: "bg-green-100 text-green-700 border-green-200" },
   pending: { label: "Pendente", cls: "bg-amber-100 text-amber-700 border-amber-200" },
@@ -39,7 +25,7 @@ export function ConversationHeader({ conversation }: ConversationHeaderProps) {
   return (
     <header className="flex items-center gap-3 px-5 py-3 bg-card border-b border-border shrink-0 shadow-sm">
       {/* Avatar */}
-      <div className="relative shrink-0">
+      <div className="shrink-0">
         <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
           {contact.avatarUrl ? (
             <img src={contact.avatarUrl} alt={contact.name} className="w-full h-full object-cover" />
@@ -49,12 +35,6 @@ export function ConversationHeader({ conversation }: ConversationHeaderProps) {
             </span>
           )}
         </div>
-        <span
-          className={cn(
-            "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white",
-            STATUS_DOT[contact.onlineStatus]
-          )}
-        />
       </div>
 
       {/* Contact Info */}
@@ -71,10 +51,6 @@ export function ConversationHeader({ conversation }: ConversationHeaderProps) {
           </span>
         </div>
         <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-          <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-            <span className={cn("w-1.5 h-1.5 rounded-full", STATUS_DOT[contact.onlineStatus])} />
-            {STATUS_LABEL[contact.onlineStatus]}
-          </span>
           <span className="text-[11px] text-muted-foreground font-mono">{contact.phone}</span>
           {assignedAgentName && (
             <span className="flex items-center gap-1 text-[11px] text-muted-foreground">

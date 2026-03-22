@@ -1,12 +1,10 @@
 export type ConversationStatus = 'open' | 'pending' | 'resolved'
-export type ContactOnlineStatus = 'online' | 'offline' | 'away' | 'busy'
 
 export interface ConversationContact {
   id: string
   name: string
   phone: string
   avatarUrl?: string
-  onlineStatus: ContactOnlineStatus
 }
 
 export interface Conversation {
