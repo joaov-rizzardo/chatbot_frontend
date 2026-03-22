@@ -2,6 +2,7 @@
 
 import { Search, Archive, MoreVertical, Phone, Tag, User } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatPhoneNumber } from "@/lib/format-phone-number"
 import type { Conversation } from "../types/conversation"
 
 const CONV_STATUS_BADGE: Record<string, { label: string; cls: string }> = {
@@ -51,7 +52,7 @@ export function ConversationHeader({ conversation }: ConversationHeaderProps) {
           </span>
         </div>
         <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-          <span className="text-[11px] text-muted-foreground font-mono">{contact.phone}</span>
+          <span className="text-[11px] text-muted-foreground font-mono">{formatPhoneNumber(contact.phone)}</span>
           {assignedAgentName && (
             <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <User className="w-3 h-3" />
@@ -71,9 +72,7 @@ export function ConversationHeader({ conversation }: ConversationHeaderProps) {
       {/* Action Buttons */}
       <div className="flex items-center gap-1 shrink-0">
         {[
-          { icon: <Phone className="w-4 h-4" />, label: "Ligar" },
           { icon: <Search className="w-4 h-4" />, label: "Buscar mensagem" },
-          { icon: <Archive className="w-4 h-4" />, label: "Arquivar" },
           { icon: <MoreVertical className="w-4 h-4" />, label: "Mais opções" },
         ].map(({ icon, label }) => (
           <button
