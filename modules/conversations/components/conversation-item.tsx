@@ -12,18 +12,6 @@ const STATUS_COLORS: Record<string, string> = {
   busy: "bg-red-400",
 }
 
-const CHANNEL_BADGE: Record<string, string> = {
-  whatsapp: "W",
-  instagram: "I",
-  telegram: "T",
-}
-
-const CHANNEL_COLOR: Record<string, string> = {
-  whatsapp: "bg-green-600",
-  instagram: "bg-pink-600",
-  telegram: "bg-sky-600",
-}
-
 const TYPE_ICON: Record<string, React.ReactNode> = {
   image: <Image className="w-3 h-3 inline mr-0.5" />,
   video: <Video className="w-3 h-3 inline mr-0.5" />,
@@ -51,7 +39,7 @@ interface ConversationItemProps {
 }
 
 export function ConversationItem({ conversation, isSelected, onClick }: ConversationItemProps) {
-  const { contact, lastMessage, lastMessageAt, lastMessageType, unreadCount, channel } = conversation
+  const { contact, lastMessage, lastMessageAt, lastMessageType, unreadCount } = conversation
 
   return (
     <button
@@ -73,14 +61,6 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
             STATUS_COLORS[contact.onlineStatus]
           )}
         />
-        <span
-          className={cn(
-            "absolute -top-0.5 -left-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white",
-            CHANNEL_COLOR[channel]
-          )}
-        >
-          {CHANNEL_BADGE[channel]}
-        </span>
       </div>
 
       {/* Content */}

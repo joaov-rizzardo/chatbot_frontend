@@ -17,7 +17,6 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "text",
     unreadCount: 3,
     status: "open",
-    channel: "whatsapp",
     assignedAgentName: "Carlos M.",
     tags: ["cliente-vip", "suporte"],
   },
@@ -35,7 +34,6 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "image",
     unreadCount: 0,
     status: "open",
-    channel: "whatsapp",
   },
   {
     id: "3",
@@ -51,7 +49,6 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "audio",
     unreadCount: 1,
     status: "pending",
-    channel: "whatsapp",
     assignedAgentName: "Paula S.",
   },
   {
@@ -67,7 +64,6 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "text",
     unreadCount: 0,
     status: "resolved",
-    channel: "whatsapp",
   },
   {
     id: "5",
@@ -83,7 +79,6 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "text",
     unreadCount: 5,
     status: "open",
-    channel: "whatsapp",
     assignedAgentName: "Carlos M.",
     tags: ["pedido"],
   },
@@ -101,7 +96,6 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "video",
     unreadCount: 2,
     status: "open",
-    channel: "instagram",
   },
   {
     id: "7",
@@ -117,7 +111,6 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "text",
     unreadCount: 0,
     status: "pending",
-    channel: "whatsapp",
     tags: ["cancelamento"],
   },
   {
@@ -134,6 +127,5 @@ export const mockConversations: Conversation[] = [
     lastMessageType: "text",
     unreadCount: 0,
     status: "resolved",
-    channel: "telegram",
   },
 ]

@@ -3,7 +3,6 @@
 import { clientFetch } from "@/lib/client-fetch"
 import type {
   Conversation,
-  ConversationChannel,
   ConversationStatus,
   ConversationsPage,
   RawBackendConversation,
@@ -24,12 +23,6 @@ const STATUS_MAP: Record<string, ConversationStatus> = {
   CLOSED: "resolved",
 }
 
-function deriveChannel(instancePhoneNumber: string): ConversationChannel {
-  // All instances are WhatsApp for now; extend when other channels are added
-  void instancePhoneNumber
-  return "whatsapp"
-}
-
 function mapConversation(raw: RawBackendConversation): Conversation {
   const contactName = [raw.contact.name, raw.contact.lastName].filter(Boolean).join(" ")
 
@@ -46,7 +39,6 @@ function mapConversation(raw: RawBackendConversation): Conversation {
     lastMessageType: raw.lastMessage ? MESSAGE_TYPE_MAP[raw.lastMessage.type] : "text",
     unreadCount: 0,
     status: STATUS_MAP[raw.status] ?? "open",
-    channel: deriveChannel(raw.instancePhoneNumber),
   }
 }
 
