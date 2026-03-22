@@ -103,7 +103,9 @@ export function useConversationsPanel({
       if (!node || !hasNextPage) return
       bottomObserverRef.current = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting && !isLoadingMoreRef.current) {
+          const container = scrollContainerRef.current
+          const isScrollable = container ? container.scrollHeight > container.clientHeight : true
+          if (entries[0].isIntersecting && !isLoadingMoreRef.current && isScrollable) {
             onLoadMoreRef.current?.()
           }
         },
@@ -121,7 +123,9 @@ export function useConversationsPanel({
       if (!node || !hasPreviousPage) return
       topObserverRef.current = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting && !isLoadingPreviousRef.current) {
+          const container = scrollContainerRef.current
+          const isScrollable = container ? container.scrollHeight > container.clientHeight : true
+          if (entries[0].isIntersecting && !isLoadingPreviousRef.current && isScrollable) {
             onLoadPreviousRef.current?.()
           }
         },
