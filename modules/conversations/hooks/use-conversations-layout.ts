@@ -55,8 +55,6 @@ export function useConversationsLayout() {
     isLoading: isLoadingMessages,
   } = useMessagesQuery(selectedId, contactName)
 
-  // Pages are sorted newest-first (DESC). Flatten all pages and reverse to get
-  // chronological order (oldest → newest) for rendering in the chat view.
   const messages = useMemo(
     () => messagesData?.pages.flatMap((p) => p.data).reverse() ?? [],
     [messagesData],

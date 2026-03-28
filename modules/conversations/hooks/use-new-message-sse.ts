@@ -8,20 +8,25 @@ import type { Message } from "../types/message"
 import type { Conversation } from "../types/conversation"
 import type { MessagesPage } from "../services/message-client"
 
-const TYPE_MAP = {
+const TYPE_MAP: Record<string, Message["type"]> = {
   TEXT: "text",
   IMAGE: "image",
   VIDEO: "video",
   AUDIO: "audio",
-} as const satisfies Record<string, Message["type"]>
+}
 
-const DIR_MAP = {
+const DIR_MAP: Record<string, Message["direction"]> = {
   INBOUND: "incoming",
   OUTBOUND: "outgoing",
-} as const satisfies Record<string, Message["direction"]>
+}
+
+const STATUS_MAP: Record<string, Conversation["status"]> = {
+  OPEN: "open",
+  PENDING: "pending",
+  CLOSED: "resolved",
+}
 
 interface NewMessagePayload {
-  conversationId: string
   conversation: {
     id: string
     status: string
@@ -63,50 +68,32 @@ export function useNewMessageSse() {
       es.addEventListener("message.new", (event: MessageEvent) => {
         attempts = 0
 
-        const payload = JSON.parse(event.data) as NewMessagePayload
-        const { conversationId, conversation: conv, message: msg } = payload
+        const { conversation: conv, message: msg } = JSON.parse(event.data) as NewMessagePayload
 
-        const direction = DIR_MAP[msg.direction as keyof typeof DIR_MAP] ?? "incoming"
-        const type = TYPE_MAP[msg.type as keyof typeof TYPE_MAP] ?? "text"
-
+        const direction = DIR_MAP[msg.direction] ?? "incoming"
+        const type = TYPE_MAP[msg.type] ?? "text"
         const contactName = [conv.contact.name, conv.contact.lastName].filter(Boolean).join(" ")
 
-        const newMessage: Message = {
-          id: msg.id,
-          type,
-          direction,
-          content: msg.content || undefined,
-          caption: msg.caption ?? undefined,
-          sentAt: msg.sentAt,
-          senderName: direction === "outgoing" ? "Você" : contactName,
-          status: "sent",
-        }
-
-        // Prepend to first page (pages are newest-first; rendering reverses the flat list)
         queryClient.setQueryData<InfiniteData<MessagesPage>>(
-          messagesQueryKey(conversationId),
+          messagesQueryKey(conv.id),
           (old) => {
             if (!old) return old
-            const firstPage = old.pages[0]
-            return {
-              ...old,
-              pages: [
-                { ...firstPage, data: [newMessage, ...firstPage.data] },
-                ...old.pages.slice(1),
-              ],
+            const [firstPage, ...rest] = old.pages
+            const newMessage: Message = {
+              id: msg.id,
+              type,
+              direction,
+              content: msg.content || undefined,
+              caption: msg.caption ?? undefined,
+              sentAt: msg.sentAt,
+              senderName: direction === "outgoing" ? "Você" : contactName,
+              status: "sent",
             }
+            return { ...old, pages: [{ ...firstPage, data: [newMessage, ...firstPage.data] }, ...rest] }
           },
         )
 
-        // Build the full Conversation object from the event data and promote it to
-        // the top of the list. applyConversationUpdate handles both the case where
-        // it already exists (moves it up) and where it's brand-new (prepends it).
-        const STATUS_MAP: Record<string, Conversation["status"]> = {
-          OPEN: "open",
-          PENDING: "pending",
-          CLOSED: "resolved",
-        }
-        const updatedConversation: Conversation = {
+        applyConversationUpdate(queryClient, {
           id: conv.id,
           contact: {
             id: conv.contact.id,
@@ -118,8 +105,7 @@ export function useNewMessageSse() {
           lastMessageAt: msg.sentAt,
           lastMessageType: type,
           unreadCount: 0,
-        }
-        applyConversationUpdate(queryClient, updatedConversation)
+        })
       })
 
       es.onerror = () => {
