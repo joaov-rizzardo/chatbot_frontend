@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback, useLayoutEffect } from "react"
+import { useState, useRef, useCallback, useLayoutEffect, useEffect } from "react"
 import type { Conversation, ConversationStatus } from "../types/conversation"
 
 export type FilterTab = "all" | ConversationStatus
@@ -42,10 +42,34 @@ export function useConversationsPanel({
   const onLoadPreviousRef = useRef(onLoadPrevious)
   const isLoadingMoreRef = useRef(isLoadingMore)
   const isLoadingPreviousRef = useRef(isLoadingPrevious)
+  const hasNextPageRef = useRef(hasNextPage)
+  const hasPreviousPageRef = useRef(hasPreviousPage)
   onLoadMoreRef.current = onLoadMore
   onLoadPreviousRef.current = onLoadPrevious
   isLoadingMoreRef.current = isLoadingMore
   isLoadingPreviousRef.current = isLoadingPrevious
+  hasNextPageRef.current = hasNextPage
+  hasPreviousPageRef.current = hasPreviousPage
+
+  // Cooldown: after any page load completes, block both sentinels for a short
+  // window. When maxPages drops a page from the opposite end, that sentinel may
+  // become momentarily visible, which would kick off a fetch loop.
+  const cooldownRef = useRef(false)
+  const prevLoadingRef = useRef(false)
+
+  useEffect(() => {
+    const wasLoading = prevLoadingRef.current
+    const isLoading = !!(isLoadingMore || isLoadingPrevious)
+    prevLoadingRef.current = isLoading
+
+    if (wasLoading && !isLoading) {
+      cooldownRef.current = true
+      const timer = setTimeout(() => {
+        cooldownRef.current = false
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [isLoadingMore, isLoadingPrevious])
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const pivotRef = useRef<{ id: string; prevOffsetTop: number; prevScrollTop: number } | null>(null)
@@ -100,12 +124,18 @@ export function useConversationsPanel({
     (node: HTMLDivElement | null) => {
       bottomObserverRef.current?.disconnect()
       bottomObserverRef.current = null
-      if (!node || !hasNextPage) return
+      if (!node) return
       bottomObserverRef.current = new IntersectionObserver(
         (entries) => {
           const container = scrollContainerRef.current
           const isScrollable = container ? container.scrollHeight > container.clientHeight : true
-          if (entries[0].isIntersecting && !isLoadingMoreRef.current && isScrollable) {
+          if (
+            entries[0].isIntersecting &&
+            !isLoadingMoreRef.current &&
+            !cooldownRef.current &&
+            isScrollable &&
+            hasNextPageRef.current
+          ) {
             onLoadMoreRef.current?.()
           }
         },
@@ -113,19 +143,25 @@ export function useConversationsPanel({
       )
       bottomObserverRef.current.observe(node)
     },
-    [hasNextPage],
+    [],
   )
 
   const topSentinelRef = useCallback(
     (node: HTMLDivElement | null) => {
       topObserverRef.current?.disconnect()
       topObserverRef.current = null
-      if (!node || !hasPreviousPage) return
+      if (!node) return
       topObserverRef.current = new IntersectionObserver(
         (entries) => {
           const container = scrollContainerRef.current
           const isScrollable = container ? container.scrollHeight > container.clientHeight : true
-          if (entries[0].isIntersecting && !isLoadingPreviousRef.current && isScrollable) {
+          if (
+            entries[0].isIntersecting &&
+            !isLoadingPreviousRef.current &&
+            !cooldownRef.current &&
+            isScrollable &&
+            hasPreviousPageRef.current
+          ) {
             onLoadPreviousRef.current?.()
           }
         },
@@ -133,7 +169,7 @@ export function useConversationsPanel({
       )
       topObserverRef.current.observe(node)
     },
-    [hasPreviousPage],
+    [],
   )
 
   return {

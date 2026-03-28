@@ -32,6 +32,7 @@ export function useMessagesQuery(conversationId: string | null, contactName: str
     enabled: !!conversationId,
     initialPageParam: FIRST_PAGE_PARAM,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      console.log(lastPage)
       if (lastPage.nextCursor && !cursorChain.current.includes(lastPage.nextCursor)) {
         const idx = cursorChain.current.indexOf(lastPageParam)
         if (idx >= 0) {

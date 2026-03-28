@@ -1,6 +1,6 @@
 "use client"
 
-import { useLayoutEffect, useRef, useCallback } from "react"
+import { useLayoutEffect, useEffect, useRef, useCallback } from "react"
 
 interface PivotState {
   el: HTMLElement
@@ -38,10 +38,35 @@ export function useMessageList({
   const onLoadNewerRef = useRef(onLoadNewer)
   const isLoadingOlderRef = useRef(isLoadingOlder)
   const isLoadingNewerRef = useRef(isLoadingNewer)
+  const hasOlderMessagesRef = useRef(hasOlderMessages)
+  const hasNewerMessagesRef = useRef(hasNewerMessages)
   onLoadOlderRef.current = onLoadOlder
   onLoadNewerRef.current = onLoadNewer
   isLoadingOlderRef.current = isLoadingOlder
   isLoadingNewerRef.current = isLoadingNewer
+  hasOlderMessagesRef.current = hasOlderMessages
+  hasNewerMessagesRef.current = hasNewerMessages
+
+  // Cooldown: after any page load completes, block both sentinels for a short
+  // window. When maxPages drops a page from the opposite end, that sentinel may
+  // become momentarily visible due to the reduced scrollHeight, which would
+  // kick off a fetch loop. The cooldown lets the DOM settle first.
+  const cooldownRef = useRef(false)
+  const prevLoadingRef = useRef(false)
+
+  useEffect(() => {
+    const wasLoading = prevLoadingRef.current
+    const isLoading = isLoadingOlder || isLoadingNewer
+    prevLoadingRef.current = isLoading
+
+    if (wasLoading && !isLoading) {
+      cooldownRef.current = true
+      const timer = setTimeout(() => {
+        cooldownRef.current = false
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [isLoadingOlder, isLoadingNewer])
 
   // Scroll to bottom on initial load (before paint to avoid flicker).
   useLayoutEffect(() => {
@@ -74,11 +99,16 @@ export function useMessageList({
     (node: HTMLDivElement | null) => {
       topObserverRef.current?.disconnect()
       topObserverRef.current = null
-      if (!node || !hasOlderMessages) return
+      if (!node) return
       topObserverRef.current = new IntersectionObserver(
         (entries) => {
           const container = containerRef.current
-          if (entries[0].isIntersecting && !isLoadingOlderRef.current) {
+          if (
+            entries[0].isIntersecting &&
+            !isLoadingOlderRef.current &&
+            !cooldownRef.current &&
+            hasOlderMessagesRef.current
+          ) {
             // Snapshot the first message's position before the load starts
             // (and before the loading spinner appears), so the pivot offset
             // reflects the clean pre-load DOM state.
@@ -97,17 +127,22 @@ export function useMessageList({
       )
       topObserverRef.current.observe(node)
     },
-    [hasOlderMessages],
+    [],
   )
 
   const bottomSentinelRef = useCallback(
     (node: HTMLDivElement | null) => {
       bottomObserverRef.current?.disconnect()
       bottomObserverRef.current = null
-      if (!node || !hasNewerMessages) return
+      if (!node) return
       bottomObserverRef.current = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting && !isLoadingNewerRef.current) {
+          if (
+            entries[0].isIntersecting &&
+            !isLoadingNewerRef.current &&
+            !cooldownRef.current &&
+            hasNewerMessagesRef.current
+          ) {
             onLoadNewerRef.current()
           }
         },
@@ -115,7 +150,7 @@ export function useMessageList({
       )
       bottomObserverRef.current.observe(node)
     },
-    [hasNewerMessages],
+    [],
   )
 
   return { containerRef, bottomRef, topSentinelRef, bottomSentinelRef }
