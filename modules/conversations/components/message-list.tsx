@@ -22,14 +22,20 @@ interface MessageListProps {
   onLoadOlder: () => void
   hasOlderMessages: boolean
   isLoadingOlder: boolean
+  onLoadNewer: () => void
+  hasNewerMessages: boolean
+  isLoadingNewer: boolean
 }
 
-export function MessageList({ messages, onLoadOlder, hasOlderMessages, isLoadingOlder }: MessageListProps) {
-  const { containerRef, bottomRef, topSentinelRef } = useMessageList({
+export function MessageList({ messages, onLoadOlder, hasOlderMessages, isLoadingOlder, onLoadNewer, hasNewerMessages, isLoadingNewer }: MessageListProps) {
+  const { containerRef, bottomRef, topSentinelRef, bottomSentinelRef } = useMessageList({
     messagesLength: messages.length,
     hasOlderMessages,
     isLoadingOlder,
     onLoadOlder,
+    hasNewerMessages,
+    isLoadingNewer,
+    onLoadNewer,
   })
 
   // Group messages by date
@@ -73,11 +79,22 @@ export function MessageList({ messages, onLoadOlder, hasOlderMessages, isLoading
           <MessageDateSeparator label={date} />
           <div className="space-y-1.5">
             {dayMsgs.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <div key={msg.id} data-msg-id={msg.id}>
+                <MessageBubble message={msg} />
+              </div>
             ))}
           </div>
         </div>
       ))}
+
+      {/* Bottom sentinel — triggers loading newer messages on scroll down */}
+      <div ref={bottomSentinelRef} className="h-1" />
+
+      {isLoadingNewer && (
+        <div className="flex justify-center py-2">
+          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+        </div>
+      )}
 
       <div ref={bottomRef} />
     </div>

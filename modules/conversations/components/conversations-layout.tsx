@@ -31,6 +31,9 @@ export function ConversationsLayout() {
     fetchOlderMessages,
     hasOlderMessages,
     isFetchingOlderMessages,
+    fetchNewerMessages,
+    hasNewerMessages,
+    isFetchingNewerMessages,
   } = useConversationsLayout()
 
   return (
@@ -79,6 +82,9 @@ export function ConversationsLayout() {
                 onLoadOlder={fetchOlderMessages}
                 hasOlderMessages={hasOlderMessages ?? false}
                 isLoadingOlder={isFetchingOlderMessages}
+                onLoadNewer={fetchNewerMessages}
+                hasNewerMessages={hasNewerMessages ?? false}
+                isLoadingNewer={isFetchingNewerMessages}
               />
             )}
             <MessageComposer />

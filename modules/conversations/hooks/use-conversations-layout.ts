@@ -52,6 +52,9 @@ export function useConversationsLayout() {
     fetchNextPage: fetchOlderMessages,
     hasNextPage: hasOlderMessages,
     isFetchingNextPage: isFetchingOlderMessages,
+    fetchPreviousPage: fetchNewerMessages,
+    hasPreviousPage: hasNewerMessages,
+    isFetchingPreviousPage: isFetchingNewerMessages,
     isLoading: isLoadingMessages,
   } = useMessagesQuery(selectedId, contactName)
 
@@ -80,5 +83,8 @@ export function useConversationsLayout() {
     fetchOlderMessages,
     hasOlderMessages,
     isFetchingOlderMessages,
+    fetchNewerMessages,
+    hasNewerMessages,
+    isFetchingNewerMessages,
   }
 }

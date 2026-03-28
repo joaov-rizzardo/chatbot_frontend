@@ -1,30 +1,54 @@
 "use client"
 
+import { useRef } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { fetchMessages } from "../services/message-client"
 
-const LIMIT = 50
+const LIMIT = 10
+
+const FIRST_PAGE_PARAM = "__first__"
 
 export const messagesQueryKey = (conversationId: string) =>
   ["messages", conversationId] as const
 
 export function useMessagesQuery(conversationId: string | null, contactName: string) {
+  const cursorChain = useRef<string[]>([FIRST_PAGE_PARAM])
+
+  const prevIdRef = useRef(conversationId)
+  if (prevIdRef.current !== conversationId) {
+    cursorChain.current = [FIRST_PAGE_PARAM]
+    prevIdRef.current = conversationId
+  }
+
   return useInfiniteQuery({
     queryKey: conversationId ? messagesQueryKey(conversationId) : ["messages", "__none__"],
     queryFn: ({ pageParam }) =>
-      fetchMessages(conversationId!, contactName, pageParam ?? undefined, LIMIT),
+      fetchMessages(
+        conversationId!,
+        contactName,
+        pageParam === FIRST_PAGE_PARAM ? undefined : pageParam,
+        LIMIT,
+      ),
     enabled: !!conversationId,
-    initialPageParam: undefined as string | undefined,
-    // Each page fetched via fetchNextPage gives the *older* messages.
-    // nextCursor from the backend points to the oldest item on the current page,
-    // which becomes the cursor for the next (older) batch.
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    // No forward paging — new messages will arrive via real-time updates.
-    getPreviousPageParam: () => undefined,
+    initialPageParam: FIRST_PAGE_PARAM,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (lastPage.nextCursor && !cursorChain.current.includes(lastPage.nextCursor)) {
+        const idx = cursorChain.current.indexOf(lastPageParam)
+        if (idx >= 0) {
+          cursorChain.current.splice(idx + 1, 0, lastPage.nextCursor)
+        } else {
+          cursorChain.current.push(lastPage.nextCursor)
+        }
+      }
+      return lastPage.nextCursor ?? undefined
+    },
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) => {
+      const idx = cursorChain.current.indexOf(firstPageParam)
+      return idx > 0 ? cursorChain.current[idx - 1] : undefined
+    },
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    // Keep at most 5 pages in memory (~250 messages) to bound memory usage.
-    maxPages: 5,
+    maxPages: 2,
   })
 }

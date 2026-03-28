@@ -9,16 +9,10 @@ export const conversationsQueryKey = ["conversations"] as const
 
 const LIMIT = 20
 
-// Sentinel used as the page param for page 1. We can't use `undefined` because
-// React Query treats `undefined` returned from getPreviousPageParam as "no
-// previous page". Using a sentinel string lets us signal "fetch page 1 (no
-// cursor)" while still returning a truthy value that means hasPreviousPage=true.
+
 const FIRST_PAGE_PARAM = "__first__"
 
 export function useConversationsQuery() {
-  // Tracks the ordered chain of page params as pages are fetched, so we can
-  // derive the previous page's param when the user scrolls back to the top.
-  // Example after 3 pages: ["__first__", "c1", "c2", "c3"]
   const cursorChain = useRef<string[]>([FIRST_PAGE_PARAM])
 
   return useInfiniteQuery({
@@ -52,11 +46,7 @@ export function useConversationsQuery() {
   })
 }
 
-// ---------------------------------------------------------------------------
-// SSE cache updater — call this from the SSE event handler when a conversation
-// is created or receives a new message. It prepends/promotes the conversation
-// to the top of the first page without invalidating the entire query.
-// ---------------------------------------------------------------------------
+
 export function applyConversationUpdate(
   queryClient: QueryClient,
   updated: Conversation,
