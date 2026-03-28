@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useConversationsQuery, conversationsQueryKey } from "../queries/use-conversations-query"
 import { useMessagesQuery } from "../queries/use-messages-query"
+import { useNewMessageSse } from "./use-new-message-sse"
 
 export function useConversationsLayout() {
   const queryClient = useQueryClient()
@@ -16,6 +17,8 @@ export function useConversationsLayout() {
       queryClient.removeQueries({ queryKey: ["messages"] })
     }
   }, [queryClient])
+
+  useNewMessageSse()
 
   const {
     data,
